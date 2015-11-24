@@ -64,9 +64,11 @@ gulp.task('dependencies', function() {
 	
 	// jquery
 	// paper.js
+	// d3
 	gulp.src([
 			'bower_components/jquery/dist/jquery.min.js',
-			'bower_components/paper/dist/paper-core.min.js'
+			'bower_components/paper/dist/paper-core.min.js',
+			'bower_components/d3/d3.min.js'
 		])
 		.pipe(concat('vendor.js'))
 		.pipe(gulp.dest('build/scripts'));
