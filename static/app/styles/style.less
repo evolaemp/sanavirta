@@ -1,0 +1,172 @@
+/* ѣ */
+
+/**
+ * colours
+ * http://www.colourlovers.com/palette/124429
+ */
+@blue: #4A748C;
+@orange: #EA7525;
+
+
+/**
+ * fonts
+ */
+@font-face{
+	font-family: 'Fira Sans';
+	src: local('Fira Sans Light'),
+		url('../fonts/FiraSans-Light.woff') format('woff');
+	font-weight: 300;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'Fira Sans';
+	src: local('Fira Sans Regular'),
+		url('../fonts/FiraSans-Regular.woff') format('woff');
+	font-weight: 400;
+	font-style: normal;
+}
+
+
+/**
+ * global
+ */
+html, body {
+	font-family: 'Fira Sans', sans-serif;
+	font-size: 15px;
+	font-weight: 400;
+	height: 100%;
+	text-rendering: optimizeLegibility;
+}
+
+button {
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	height: 50px;
+	letter-spacing: normal;
+	line-height: 1;
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	text-transform: none;
+	&:hover {
+		color: inherit;
+	}
+}
+
+
+/**
+ * along the tree
+ */
+header {
+	line-height: 50px;
+	padding: 20px 10px 15px 10px;
+	h1 {
+		font-size: 50px;
+		line-height: 50px;
+		margin: 0;
+	}
+	.controls {
+		.hidden {
+			visibility: hidden;
+			&.radius-input, &.k-input {
+				display: none;
+				visibility: visible;
+			}
+		}
+		select {
+			margin: 0;
+			width: 100%;
+		}
+		input[type=text] {
+			margin: 0;
+			width: 100%;
+		}
+		input[type=file] {
+			display: none;
+		}
+		button.file-button {
+			border-color: @blue;
+			width: 100%;
+		}
+		.button-group {
+			width: 100%;
+			button {
+				border-color: @blue;
+				border-radius: 0;
+				color: #999;
+				float: left;
+				width: 50%;
+			}
+			button:first-child {
+				border-radius: 4px 0 0 4px;
+			}
+			button:last-child {
+				border-radius: 0 4px 4px 0;
+				border-left: none;
+			}
+			button.active {
+				background-color: @blue;
+				color: white;
+			}
+		}
+		.input-group {
+			width: 100%;
+			button {
+				border-color: @blue;
+				border-radius: 4px 0 0 4px;
+				border-right: none;
+				color: #999;
+				float: left;
+				width: 25%;
+			}
+			input {
+				border-color: @blue;
+				border-radius: 0 4px 4px 0;
+				float: left;
+				height: 50px;
+				line-height: 1;
+				margin: 0;
+				padding: 0 6px;
+				width: 75%;
+			}
+		}
+	}
+}
+
+main {
+	bottom: 0;
+	clear: both;
+	height: auto;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	top: 85px;
+	width: 100%;
+}
+
+footer {
+	.messages {
+		bottom: 10px;
+		left: 10px;
+		position: absolute;
+		.message {
+			color: white;
+			font-size: 18px;
+			height: 50px;
+			line-height: 50px;
+			padding: 0 18px;
+			&.error {
+				background-color: @orange;
+			}
+			&.success {
+				background-color: @blue;
+			}
+			&.info {
+				background-color: @blue;
+			}
+		}
+	}
+}
+
