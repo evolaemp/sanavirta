@@ -88,9 +88,8 @@ var app = (function() {
 	$(document).ready(function() {
 		appInstance.initAjax();
 		
-		appInstance.map = new app.maps.Map();
-		if($('canvas').length > 0) {
-			appInstance.map.initCanvas($('canvas').get(0));
+		if($('main').length > 0) {
+			appInstance.map = new app.maps.Map($('main').get(0));
 			appInstance.map.initGlobe();
 			appInstance.map.redraw();
 		}
