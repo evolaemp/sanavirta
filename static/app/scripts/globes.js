@@ -40,6 +40,11 @@ app.globes = (function() {
 		 */
 		self.φ0 = 0;
 		self.λ0 = 0;
+		
+		/**
+		 * The GeoJSON/TopoJSON data source.
+		 */
+		self.data = null;
 	};
 	
 	/**
@@ -69,6 +74,9 @@ app.globes = (function() {
 	 */
 	Globe.prototype.redraw = function(deltaX, deltaY, zoom) {
 		var self = this;
+		if(!self.data) {
+			return;
+		}
 		
 		// 50px of delta equal 5 degrees
 		self.λ0 = -deltaX / zoom / 50 * 5;
@@ -81,10 +89,21 @@ app.globes = (function() {
 		// clear and redraw
 		self.context.clearRect(0, 0, self.canvas.width, self.canvas.height);
 		self.context.beginPath();
-		for(var i = 0; i < EARTH.features.length; i++) {
-			self.path.context(self.context)(EARTH.features[i]);
+		for(var i = 0; i < self.data.features.length; i++) {
+			self.path.context(self.context)(self.data.features[i]);
 		}
 		self.context.fill();
+	};
+	
+	/**
+	 * Changes the GeoJSON/TopoJSON data source and triggers a redraw.
+	 * 
+	 * @param The new GeoJSON or TopoJSON object.
+	 */
+	Globe.prototype.setData = function(data) {
+		var self = this;
+		self.data = data;
+		self.map.redraw();
 	};
 	
 	

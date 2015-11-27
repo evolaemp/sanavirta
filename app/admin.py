@@ -1,3 +1,14 @@
 from django.contrib import admin
 
-# Register your models here.
+from app.models import Globe
+
+
+
+@admin.register(Globe)
+class GlobeAdmin(admin.ModelAdmin):
+	list_display = ('name', 'created', 'last_modified',)
+	search_fields = ('name',)
+	readonly_fields = ('created', 'last_modified',)
+
+
+

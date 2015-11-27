@@ -5,8 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic.base import View
 
-# from app.models import Language
-# from utils.json import make_json
+from app.models import Globe
 
 
 
@@ -24,17 +23,13 @@ class LandingView(View):
 		"""
 		Renders the landing page.
 		"""
-		'''languages = Language.objects.filter(
-			latitude__isnull = False,
-			longitude__isnull = False
-		)'''
-		''''languages': make_json(
-			[language.to_dict() for language in languages]
-		)'''
+		globe = Globe.objects.get(pk=1)
 		
 		return render_to_response(
 			'landing.html',
-			{},
+			{
+				'EARTH': globe.geo_json
+			},
 			context_instance = RequestContext(request)
 		)
 

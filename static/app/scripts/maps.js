@@ -85,6 +85,7 @@ app.maps = (function() {
 		canvas.classList.add('globe');
 		
 		self.globe.initCanvas(canvas);
+		self.globe.setData(EARTH);
 	};
 	
 	/**
