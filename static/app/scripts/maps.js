@@ -93,13 +93,15 @@ app.maps = (function() {
 	 */
 	Map.prototype.initGraph = function() {
 		var self = this;
-		self.graph = new app.graphs.Graph();
+		self.graph = new app.graphs.Graph(self);
 		
 		var canvas = document.createElement('canvas');
 		self.dom.appendChild(canvas);
 		canvas.width = self.dom.offsetWidth;
 		canvas.height = self.dom.offsetHeight;
 		canvas.classList.add('graph');
+		
+		self.graph.initCanvas(canvas);
 	};
 	
 	/**

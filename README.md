@@ -75,7 +75,15 @@ scope of this project, but here are some hints.
 
 ### Graphs
 
-
+For graphs to work as expected, languages and their geographical locations
+should be present in the database. You can populate the database through the
+admin panel or you can call the following command with `app/fixtures/locations`
+as an argument:
+```
+python manage.py harvest_languages <file_name>
+```
+The command expects lines of whitespace-separated ISO 639-3 codes, latitudes,
+and longitudes.
 
 
 ## Workflow
