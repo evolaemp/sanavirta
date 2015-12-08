@@ -43,27 +43,6 @@ app.maps = (function() {
 	};
 	
 	/**
-	 * Inits the paper.js canvas.
-	 * 
-	 * @param The <canvas> element.
-	 */
-	Map.prototype.initCanvas = function(dom) {
-		var self = this;
-		self.dom = dom;
-		
-		self.dom.width = self.dom.parentNode.offsetWidth;
-		self.dom.height = self.dom.parentNode.offsetHeight;
-		
-		/*paper.setup(self.dom);
-		paper.project.currentStyle = {
-			fontFamily: 'Fira Sans',
-			fontSize: 12,
-			strokeColor: 'black',
-			strokeWidth: 1.5
-		};*/
-	};
-	
-	/**
 	 * Inits the map's globe instance.
 	 */
 	Map.prototype.initGlobe = function() {
@@ -102,6 +81,9 @@ app.maps = (function() {
 		canvas.classList.add('graph');
 		
 		self.graph.initCanvas(canvas);
+		$.get('/api/file/').done(function(data) {
+			self.graph.setData(data);
+		});
 	};
 	
 	/**
@@ -118,7 +100,9 @@ app.maps = (function() {
 			);
 		}
 		
-		// paper.view.draw();
+		if(self.graph) {
+			self.graph.redraw();
+		}
 	};
 	
 	

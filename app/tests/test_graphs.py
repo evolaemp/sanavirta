@@ -5,6 +5,8 @@ from app.graphs import *
 
 
 class GraphTestCase(TestCase):
+	fixtures = ['languages.json']
+	
 	def setUp(self):
 		self.graph = Graph()
 	
@@ -17,6 +19,17 @@ class GraphTestCase(TestCase):
 		self.assertEqual(len(self.graph.nodes), 44)
 		self.assertEqual(len(self.graph.undirected), 87)
 		self.assertEqual(len(self.graph.directed), 17)
+		
+		self.assertIn('bul', self.graph.nodes)
+		self.assertIn('fin', self.graph.nodes)
+		self.assertIn('hrv', self.graph.nodes)
+		self.assertIn('yrk', self.graph.nodes)
+		
+		self.assertIn(('fin', 'krl', 4), self.graph.undirected)
+		self.assertIn(('bak', 'kaz', 4), self.graph.undirected)
+		
+		self.assertIn(('fin', 'smn', 3), self.graph.directed)
+		self.assertIn(('sel', 'rus', 2), self.graph.directed)
 
 
 

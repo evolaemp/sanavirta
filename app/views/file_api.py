@@ -7,6 +7,32 @@ from app.graphs import Graph
 
 
 class FileApiView(View):
+	
+	def get(self, request):
+		"""
+		Equivalent to POST the app/fixtures/sample.dot file.
+		Used for development purposes.
+		"""
+		with open('app/fixtures/sample.dot', 'r') as f:
+			contents = f.read()
+		
+		graph = Graph()
+		
+		try:
+			graph.read_dot_string(contents)
+		except ValueError as error:
+			return JsonResponse({
+				'error': 'File could not be parsed.'
+			}, status=400)
+		
+		return JsonResponse({
+			'name': graph.name,
+			'nodes': graph.nodes,
+			'undirected': list(graph.undirected),
+			'directed': list(graph.directed)
+		}, status=200)
+	
+	
 	def post(self, request):
 		"""
 		Receives .dot files and returns ready-for-front-end-consumption graphs.
@@ -36,14 +62,13 @@ class FileApiView(View):
 		try:
 			graph.read_dot_string(contents)
 		except ValueError as error:
-			return JsonResponse({'error': str(error)}, status=400)
-		except Exception as error:
-			print(error)
-			return JsonResponse({'error': 'File unreadable.'}, status=400)
+			return JsonResponse({
+				'error': 'File could not be parsed.'
+			}, status=400)
 		
 		return JsonResponse({
 			'name': graph.name,
-			'nodes': list(graph.nodes),
+			'nodes': graph.nodes,
 			'undirected': list(graph.undirected),
 			'directed': list(graph.directed)
 		}, status=200)

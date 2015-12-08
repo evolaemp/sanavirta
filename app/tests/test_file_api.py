@@ -6,6 +6,8 @@ from utils.json import read_json
 
 
 class FileApiTestCase(TestCase):
+	fixtures = ['languages.json']
+	
 	def test_good_upload(self):
 		with open('app/fixtures/sample.dot', 'r') as f:
 			response = self.client.post(
@@ -17,6 +19,11 @@ class FileApiTestCase(TestCase):
 		
 		d = read_json(response.content)
 		self.assertEqual(len(d), 4)
+		
+		self.assertEqual(d['name'], 'LanguageGraph')
+		self.assertEqual(len(d['nodes']), 44)
+		self.assertEqual(len(d['undirected']), 87)
+		self.assertEqual(len(d['directed']), 17)
 	
 	def test_bad_upload(self):
 		with open('app/fixtures/globes.json', 'r') as f:

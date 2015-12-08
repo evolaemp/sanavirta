@@ -2,6 +2,8 @@
 Graph instances combine the relevant information from .dot files and the
 languages geographical coordinates.
 """
+from app.models import Language
+
 import re
 
 
@@ -10,18 +12,34 @@ class Graph:
 	
 	def __init__(self):
 		self.name = ''
-		self.nodes = set()
+		self.nodes = {}
 		self.undirected = set()
 		self.directed = set()
 	
 	
 	def add_node(self, node_name):
-		self.nodes.add(node_name)
+		"""
+		Only adds nodes that are present in the database.
+		"""
+		try:
+			lang = Language.objects.get(iso_code=node_name)
+			assert type(lang.latitude) is float
+			assert type(lang.longitude) is float
+		except (Language.DoesNotExist, AssertionError):
+			return
+		
+		self.nodes[lang.iso_code] = (lang.latitude, lang.longitude)
 	
 	
 	def add_edge(self, node_one, node_two, is_directed=False, weight=0):
-		assert node_one in self.nodes
-		assert node_two in self.nodes
+		"""
+		Only adds edges between already known nodes.
+		"""
+		try:
+			assert node_one in self.nodes
+			assert node_two in self.nodes
+		except AssertionError:
+			return
 		
 		if is_directed:
 			self.directed.add((node_one, node_two, weight))

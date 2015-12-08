@@ -91,6 +91,7 @@ var app = (function() {
 		if($('main').length > 0) {
 			appInstance.map = new app.maps.Map($('main').get(0));
 			appInstance.map.initGlobe();
+			appInstance.map.initGraph();
 			appInstance.map.redraw();
 		}
 	});

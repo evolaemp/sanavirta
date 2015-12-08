@@ -106,6 +106,17 @@ app.globes = (function() {
 		self.map.redraw();
 	};
 	
+	/**
+	 * Returns the canvas [x, y] coordinates of the given geographical point.
+	 * 
+	 * @param The latitude of the geo point.
+	 * @param The longitude of the geo point.
+	 * @return [x, y] canvas coordinates.
+	 */
+	Globe.prototype.getCanvasCoords = function(latitude, longitude) {
+		return this.projection([longitude, latitude]);
+	};
+	
 	
 	/**
 	 * Module exports.
