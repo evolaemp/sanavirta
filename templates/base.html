@@ -13,17 +13,37 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'styles/style.css' %}" />
 </head>
 <body>
-	<header>
-		<div class="row">
-			<div class="six columns">
-				<h1>sanavirta</h1>
-			</div>
-			<div class="six columns controls">
-				{% block controls %}{% endblock %}
-			</div>
-		</div>
-	</header>
-	
+	<aside>
+		<header>
+			<h1>sanavirta</h1>
+		</header>
+		<input type="radio" name="tabs" id="globe" checked/>
+		<label for="globe">globe</label>
+		<input type="radio" name="tabs" id="graph"/>
+		<label for="graph">globe</label>
+		<section class="articles">
+			<article class="globe">
+				<h2>GLOBE</h2>
+						<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et</p>
+				<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et</p>
+						<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
+						ENDDDDDD</p>
+			</article>
+			<article class="graph">
+				<h2>GRAPH</h2>
+				<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et
+			ENDDDDDD</p>
+			</article>
+			</section>
+			<section class="download">
+				<select class="format">
+					<option>.jpg</option>
+					<option>.pdf</option>
+					<option>.png</option>
+				</select>
+				<button type="button">download</button>
+			</section>
+		</aside>
 	<main id="map"></main>
 	
 	<footer>

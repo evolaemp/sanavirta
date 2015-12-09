@@ -54,7 +54,7 @@ gulp.task('scripts', function() {
 gulp.task('dependencies', function() {
 	// skeleton
 	gulp.src([
-			'bower_components/skeleton/css/*.css'
+			'bower_components/skeleton/css/normalize.css'
 		])
 		.pipe(less({
 			plugins: [cleanCss]
