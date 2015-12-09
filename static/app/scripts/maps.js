@@ -126,8 +126,8 @@ app.maps = (function() {
 		 * The deltas between world and viewport coordinates.
 		 * Thus the negatives: worldP - viewportP = deltaP.
 		 */
-		self.deltaX = 0;
-		self.deltaY = 0;
+		self.deltaX = -700;
+		self.deltaY = -900;
 		
 		/**
 		 * The zoom coefficient.

@@ -68,6 +68,7 @@ app.globes = (function() {
 	/**
 	 * Redraws the globe <canvas>.
 	 * 
+	 * @todo Debug the +/- signs of self.φ0/self.λ0.
 	 * @param The x offset in pixels.
 	 * @param The y offset in pixels.
 	 * @param The zoom coefficient.
@@ -108,13 +109,18 @@ app.globes = (function() {
 	
 	/**
 	 * Returns the canvas [x, y] coordinates of the given geographical point.
+	 * Or returns null if the coordinates are not visible.
 	 * 
 	 * @param The latitude of the geo point.
 	 * @param The longitude of the geo point.
-	 * @return [x, y] canvas coordinates.
+	 * @return [x, y] or null.
 	 */
 	Globe.prototype.getCanvasCoords = function(latitude, longitude) {
-		return this.projection([longitude, latitude]);
+		var self = this;
+		if(d3.geo.distance([-self.λ0, -self.φ0], [longitude, latitude]) > Math.PI / 2) {
+			return null;
+		}
+		return self.projection([longitude, latitude]);
 	};
 	
 	
