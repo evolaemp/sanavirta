@@ -24,6 +24,11 @@ gulp.task('styles', function() {
 		.pipe(gulp.dest('build/styles'));
 });
 
+// task: images
+gulp.task('images', function() {
+	gulp.src('app/images/*.png')
+		.pipe(gulp.dest('build/images'));
+});
 
 // task: process fonts
 gulp.task('fonts', function() {
@@ -54,7 +59,7 @@ gulp.task('scripts', function() {
 gulp.task('dependencies', function() {
 	// skeleton
 	gulp.src([
-			'bower_components/skeleton/css/*.css'
+			'bower_components/skeleton/css/normalize.css'
 		])
 		.pipe(less({
 			plugins: [cleanCss]
@@ -86,10 +91,10 @@ gulp.task('watch', function() {
 gulp.task('default', ['clean'], function() {
 	gulp.start([
 		'dependencies',
+		'images',
 		'styles',
 		'fonts',
 		'scripts',
 		'watch'
 	]);
 });
-
