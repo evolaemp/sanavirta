@@ -72,12 +72,11 @@ body {
 	height: 100%;
 }
 aside {
-	background: white;
 	flex: 1;
 	header {
 		align-items: center;
 		justify-content: center;
-		background: lighten(skyblue, 10%);
+		background-color: lighten(yellow, 30%);
 		height: 10vh;
 		display: flex;
 		h1 {
@@ -90,24 +89,44 @@ aside {
 		display: none;
 	}
 	label {
+		align-items: center;
 		background: white;
 		cursor: pointer;
-		display: inline-block;
+		display: flex;
+		justify-content: center;
 		height: 10vh;
 		float: left;
 		margin: 0;
 		text-align: center;
 		width: 50%;
 		&:hover {
-			background: ghostwhite;
+			background-color: skyblue;
 			transition: background 0.2s ease;
 		}
 	}
+	label[for='globe'] {
+		div {
+			background-image: url(../images/earth.png);
+			background-repeat: no-repeat;
+			background-size: contain;
+			height: 50px;
+			width: 50px;
+		}
+	}
+	label[for='graph'] {
+		div {
+			background-image: url(../images/earth-2.png);
+			background-repeat: no-repeat;
+			background-size: contain;
+			height: 50px;
+			width: 50px;
+		}
+	}
 	input#globe:checked ~ label[for="globe"] {
-		background: ghostwhite;
+		background-color: skyblue;
 	}
 	input#graph:checked ~ label[for="graph"] {
-		background: ghostwhite;
+		background-color: skyblue;
 	}
 	input#globe:checked ~ section.articles {
 		.globe {
@@ -122,7 +141,7 @@ aside {
 		}
 	}
 	section.articles {
-		background: ghostwhite;
+		background-color: white;
 		clear: both;
 		height: 70vh;
 		overflow-y: auto;
@@ -147,7 +166,7 @@ aside {
 	}
 	section.download {
 		align-items: center;
-		background:  lighten(skyblue, 10%);
+		background-color: lighten(yellow, 30%);
 		display: flex;
 		justify-content: space-around;
 		height: 10vh;
@@ -165,7 +184,8 @@ aside {
 			background-color: white;
 			border: 3px solid lighten(skyblue, 10%);
 			cursor: pointer;
-			padding: 5px 10px;
+			height: 30px;
+			padding: 0 5px;
 			&:hover, &:focus {
 				background-color: lighten(yellow, 30%);
 				border: 3px solid darken(skyblue, 30%);
@@ -175,6 +195,7 @@ aside {
 }
 
 main {
+	background-color: powderblue;
 	flex: 3;
 	height: 100vh;
 	margin: 0;

@@ -24,6 +24,11 @@ gulp.task('styles', function() {
 		.pipe(gulp.dest('build/styles'));
 });
 
+// task: images
+gulp.task('images', function() {
+	gulp.src('app/images/*.png')
+		.pipe(gulp.dest('build/images'));
+});
 
 // task: process fonts
 gulp.task('fonts', function() {
@@ -86,10 +91,10 @@ gulp.task('watch', function() {
 gulp.task('default', ['clean'], function() {
 	gulp.start([
 		'dependencies',
+		'images',
 		'styles',
 		'fonts',
 		'scripts',
 		'watch'
 	]);
 });
-
