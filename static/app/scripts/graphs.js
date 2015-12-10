@@ -43,6 +43,16 @@ app.graphs = (function() {
 		self.edgesLayer = null;
 		self.nodesLayer = null;
 		self.textLayer = null;
+		
+		/**
+		 * The paper.js tool for attaching event listeners.
+		 */
+		self.tool = null;
+		
+		/**
+		 * The currently selected Edge instance.
+		 */
+		self.selectedEdge = null;
 	};
 	
 	/**
@@ -54,11 +64,21 @@ app.graphs = (function() {
 		var self = this;
 		self.canvas = canvas;
 		
+		/* init paper.js */
 		paper.setup(self.canvas);
 		
+		/* init layers */
 		self.edgesLayer = new paper.Layer();
 		self.nodesLayer = new paper.Layer();
 		self.textLayer = new paper.Layer();
+		
+		/* init tools */
+		self.tool = new paper.Tool();
+		self.tool.minDistance = 10;
+		self.tool.onMouseDown = self._handleSelectEdge.bind(self);
+		self.tool.onMouseDrag = self._handleDrag.bind(self);
+		self.tool.onMouseUp = self._handleEndDrag.bind(self);
+		self.tool.activate();
 	};
 	
 	/**
@@ -158,6 +178,39 @@ app.graphs = (function() {
 	 */
 	Graph.prototype.getCanvasCoords = function(latitude, longitude) {
 		return this.map.globe.getCanvasCoords(latitude, longitude);
+	};
+	
+	/**
+	 * Handles dragging.
+	 * 
+	 * @param A paper.js ToolEvent instance.
+	 */
+	Graph.prototype._handleSelectEdge = function(e) {
+		var self = this;
+		
+		if(e.item == null || e.item.layer != self.edgesLayer) {
+			return;
+		}
+		
+		for(var i = 0; i < self.edges.length; i++) {
+			if(self.edges[i].pathItem.id == e.item.id) {
+				self.selectedEdge = self.edges[i];
+				break;
+			}
+		}
+	};
+	Graph.prototype._handleDrag = function(e) {
+		var self = this;
+		
+		if(self.selectedEdge == null) {
+			return;
+		}
+		
+		self.selectedEdge.moveMiddlePoint(e.point);
+	};
+	Graph.prototype._handleEndDrag = function(e) {
+		var self = this;
+		self.selectedEdge = null;
 	};
 	
 	
@@ -276,6 +329,11 @@ app.graphs = (function() {
 		self.tail = tail;
 		
 		/**
+		 * If not null, then the middle anchor has been moved.
+		 */
+		self.middlePoint = null;
+		
+		/**
 		 * Whether the edge is directed or not.
 		 */
 		self.isDirected = false;
@@ -302,7 +360,7 @@ app.graphs = (function() {
 		self.pathItem = new paper.Path({
 			parent: self.graph.edgesLayer,
 			closed: false,
-			strokeWidth: self.weight
+			strokeWidth: self.weight * 1.5
 		});
 		
 		if(self.isDirected) {
@@ -322,6 +380,7 @@ app.graphs = (function() {
 	Edge.prototype.redraw = function() {
 		var self = this;
 		
+		/* decide on visibility */
 		if(!self.head.isVisible() || !self.tail.isVisible()) {
 			self.pathItem.visible = false;
 			if(self.isDirected) self.arrowItem.visible = false;
@@ -332,22 +391,62 @@ app.graphs = (function() {
 			if(self.isDirected) self.arrowItem.visible = true;
 		}
 		
+		/* set anchor points */
 		self.pathItem.segments = [
 			[self.head.x, self.head.y],
 			[self.tail.x, self.tail.y]
 		];
-		if(self.isDirected) {
+		if(self.middlePoint) {
+			self.pathItem.insert(1, self.middlePoint);
+			self.pathItem.smooth();
+		}
+		
+		/* draw the arrow head */
+		/*if(self.isDirected) {
 			var vector = new paper.Point(
 				self.tail.x - self.head.x,
 				self.tail.y - self.head.y
 			);
 			var arrowVector = vector.normalize(20);
-			/*self.arrowItem.segments = [
+			self.arrowItem.segments = [
 				arrowVector.rotate(135).add([self.tail.x, self.tail.y]),
 				[self.tail.x, self.tail.y],
 				arrowVector.rotate(-135).add([self.tail.x, self.tail.y]),
-			];*/
+			];
+		}*/
+	};
+	
+	Edge.prototype.enterSelectMode = function() {
+		var self = this;
+		self.pathItem.selected = true;
+		self.graph.addTool.activate();
+	};
+	
+	Edge.prototype.exitSelectMode = function() {
+		var self = this;
+		self.pathItem.selected = false;
+	};
+	
+	Edge.prototype.addAnchor = function(x, y) {
+		var self = this;
+		self.pathItem.insert(1, [x, y]);
+		paper.view.draw();
+	};
+	
+	Edge.prototype.moveMiddlePoint = function(point) {
+		var self = this;
+		
+		self.middlePoint = point;
+		
+		if(self.pathItem.segments.length > 2) {
+			self.pathItem.removeSegment(1);
 		}
+		else console.warn('stella');
+		self.pathItem.insert(1, self.middlePoint);
+		
+		self.pathItem.smooth();
+		
+		paper.view.draw();
 	};
 	
 	
