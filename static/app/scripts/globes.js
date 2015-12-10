@@ -57,7 +57,7 @@ app.globes = (function() {
 		
 		self.canvas = canvas;
 		self.context = self.canvas.getContext('2d');
-		self.context.fillStyle = 'ghostwhite';
+		self.context.fillStyle = 'white';
 		
 		self.projection = d3.geo.orthographic().clipAngle(90);
 		self.projection.translate([self.canvas.width / 2, self.canvas.height / 2]);
