@@ -124,6 +124,23 @@ app.globes = (function() {
 		return self.projection([longitude, latitude]);
 	};
 	
+	/**
+	 * Returns the geo coordinates of the given canvas point.
+	 * Or returns null if the canvas point is in outer space.
+	 * 
+	 * @param x on the canvas.
+	 * @param y on the canvas.
+	 * @return [latitude, longitude].
+	 */
+	Globe.prototype.getGeoCoords = function(x, y) {
+		var self = this;
+		var geoCoords = self.projection.invert([x, y]);
+		if(geoCoords) {
+			return [geoCoords[1], geoCoords[0]];
+		}
+		return null;
+	};
+	
 	
 	/**
 	 * Module exports.

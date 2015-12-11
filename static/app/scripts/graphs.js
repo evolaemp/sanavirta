@@ -119,7 +119,7 @@ app.graphs = (function() {
 		
 		/* handle styles */
 		self.edgesLayer.style = {
-			strokeColor: '#48F3AF'
+			strokeColor: '#1D1E21'
 		};
 		self.nodesLayer.style = {
 			fillColor: '#1D1E21'
@@ -200,6 +200,17 @@ app.graphs = (function() {
 	 */
 	Graph.prototype.getCanvasCoords = function(latitude, longitude) {
 		return this.map.globe.getCanvasCoords(latitude, longitude);
+	};
+	
+	/**
+	 * Proxy for app.globes.Globe.getGeoCoords().
+	 * 
+	 * @param x on the canvas.
+	 * @param y on the canvas.
+	 * @return [latitude, longitude].
+	 */
+	Graph.prototype.getGeoCoords = function(x, y) {
+		return this.map.globe.getGeoCoords(x, y);
 	};
 	
 	
@@ -332,6 +343,12 @@ app.graphs = (function() {
 		 */
 		self.pathItem = null;
 		self.arrowItem = null;
+		
+		/**
+		 * The [latitude, longitude] of the head and tail handles.
+		 */
+		self.headHandleGeo = null;
+		self.tailHandleGeo = null;
 	};
 	
 	/**
@@ -381,6 +398,23 @@ app.graphs = (function() {
 			[self.tail.x, self.tail.y]
 		];
 		
+		if(self.headHandleGeo != null) {
+			var headHandle = self.graph.getCanvasCoords(
+				self.headHandleGeo[0],
+				self.headHandleGeo[1]
+			);
+			self.pathItem.segments[0].handleOut.x = headHandle[0] - self.pathItem.segments[0].point.x;
+			self.pathItem.segments[0].handleOut.y = headHandle[1] - self.pathItem.segments[0].point.y;
+		}
+		if(self.tailHandleGeo != null) {
+			var tailHandle = self.graph.getCanvasCoords(
+				self.tailHandleGeo[0],
+				self.tailHandleGeo[1]
+			);
+			self.pathItem.segments[1].handleIn.x = tailHandle[0] - self.pathItem.segments[1].point.x;
+			self.pathItem.segments[1].handleIn.y = tailHandle[1] - self.pathItem.segments[1].point.y;
+		}
+		
 		/* draw the arrow head */
 		/*if(self.isDirected) {
 			var vector = new paper.Point(
@@ -394,6 +428,34 @@ app.graphs = (function() {
 				arrowVector.rotate(-135).add([self.tail.x, self.tail.y]),
 			];
 		}*/
+	};
+	
+	/**
+	 * Moves one of the movable handles by the distance specified by the given
+	 * delta vector.
+	 * 
+	 * @param One of ['head', 'tail'].
+	 * @param The delta vector as a paper.js Point instance.
+	 */
+	Edge.prototype.moveHandle = function(which, delta) {
+		var self = this;
+		
+		if(which == 'head') {
+			self.pathItem.segments[0].handleOut.x += delta.x;
+			self.pathItem.segments[0].handleOut.y += delta.y;
+			self.headHandleGeo = self.graph.getGeoCoords(
+				self.pathItem.segments[0].point.x + self.pathItem.segments[0].handleOut.x,
+				self.pathItem.segments[0].point.y + self.pathItem.segments[0].handleOut.y
+			);
+		}
+		else {
+			self.pathItem.segments[1].handleIn.x += delta.x;
+			self.pathItem.segments[1].handleIn.y += delta.y;
+			self.tailHandleGeo = self.graph.getGeoCoords(
+				self.pathItem.segments[1].point.x + self.pathItem.segments[1].handleIn.x,
+				self.pathItem.segments[1].point.y + self.pathItem.segments[1].handleIn.y
+			);
+		}
 	};
 	
 	
@@ -462,10 +524,10 @@ app.graphs = (function() {
 		}
 		
 		if(hitResult.segment.index == 0) {
-			self.handle = hitResult.segment.handleOut;
+			self.handle = 'head';
 		}
 		else {
-			self.handle = hitResult.segment.handleIn;
+			self.handle = 'tail';
 		}
 	};
 	
@@ -481,8 +543,7 @@ app.graphs = (function() {
 			return;
 		}
 		
-		self.handle.x += e.delta.x;
-		self.handle.y += e.delta.y;
+		self.edge.moveHandle(self.handle, e.delta);
 	};
 	
 	/**
