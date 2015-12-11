@@ -50,9 +50,9 @@ app.graphs = (function() {
 		self.tool = null;
 		
 		/**
-		 * The currently selected Edge instance.
+		 * The EditOperation instance associated with the graph.
 		 */
-		self.selectedEdge = null;
+		self.editOperation = new EditOperation(self);
 	};
 	
 	/**
@@ -66,19 +66,40 @@ app.graphs = (function() {
 		
 		/* init paper.js */
 		paper.setup(self.canvas);
+		paper.settings.handleSize = 10;
+		paper.settings.hitTolerance = 5;
 		
 		/* init layers */
 		self.edgesLayer = new paper.Layer();
 		self.nodesLayer = new paper.Layer();
 		self.textLayer = new paper.Layer();
 		
-		/* init tools */
+		/* init tools and modes */
 		self.tool = new paper.Tool();
-		self.tool.minDistance = 10;
-		self.tool.onMouseDown = self._handleSelectEdge.bind(self);
-		self.tool.onMouseDrag = self._handleDrag.bind(self);
-		self.tool.onMouseUp = self._handleEndDrag.bind(self);
+		self.tool.onMouseDown = self._handleMouseDown.bind(self);
 		self.tool.activate();
+		
+		self.editOperation.initPaperItems();
+	};
+	
+	/**
+	 * Handles mousedown with the graph's paper.js tool.
+	 * 
+	 * @param A paper.js ToolEvent instance.
+	 */
+	Graph.prototype._handleMouseDown = function(e) {
+		var self = this;
+		
+		if(e.item == null || e.item.layer != self.edgesLayer) {
+			return;
+		}
+		
+		for(var i = 0; i < self.edges.length; i++) {
+			if(self.edges[i].pathItem.id == e.item.id) {
+				self.editOperation.start(self.edges[i]);
+				break;
+			}
+		}
 	};
 	
 	/**
@@ -178,39 +199,6 @@ app.graphs = (function() {
 	 */
 	Graph.prototype.getCanvasCoords = function(latitude, longitude) {
 		return this.map.globe.getCanvasCoords(latitude, longitude);
-	};
-	
-	/**
-	 * Handles dragging.
-	 * 
-	 * @param A paper.js ToolEvent instance.
-	 */
-	Graph.prototype._handleSelectEdge = function(e) {
-		var self = this;
-		
-		if(e.item == null || e.item.layer != self.edgesLayer) {
-			return;
-		}
-		
-		for(var i = 0; i < self.edges.length; i++) {
-			if(self.edges[i].pathItem.id == e.item.id) {
-				self.selectedEdge = self.edges[i];
-				break;
-			}
-		}
-	};
-	Graph.prototype._handleDrag = function(e) {
-		var self = this;
-		
-		if(self.selectedEdge == null) {
-			return;
-		}
-		
-		self.selectedEdge.moveMiddlePoint(e.point);
-	};
-	Graph.prototype._handleEndDrag = function(e) {
-		var self = this;
-		self.selectedEdge = null;
 	};
 	
 	
@@ -329,11 +317,6 @@ app.graphs = (function() {
 		self.tail = tail;
 		
 		/**
-		 * If not null, then the middle anchor has been moved.
-		 */
-		self.middlePoint = null;
-		
-		/**
 		 * Whether the edge is directed or not.
 		 */
 		self.isDirected = false;
@@ -396,10 +379,6 @@ app.graphs = (function() {
 			[self.head.x, self.head.y],
 			[self.tail.x, self.tail.y]
 		];
-		if(self.middlePoint) {
-			self.pathItem.insert(1, self.middlePoint);
-			self.pathItem.smooth();
-		}
 		
 		/* draw the arrow head */
 		/*if(self.isDirected) {
@@ -416,37 +395,123 @@ app.graphs = (function() {
 		}*/
 	};
 	
-	Edge.prototype.enterSelectMode = function() {
+	
+	
+	/**
+	 * Class definition for edit operations.
+	 * 
+	 * @class
+	 * @param The graph that the operation belongs to.
+	 */
+	var EditOperation = function(graph) {
 		var self = this;
-		self.pathItem.selected = true;
-		self.graph.addTool.activate();
+		self.graph = graph;
+		
+		/**
+		 * The paper.js tool for manipulating the edit.
+		 */
+		self.tool = null;
+		
+		/**
+		 * The edge that is worked on.
+		 * If null, then the operation is not active.
+		 */
+		self.edge = null;
+		
+		/**
+		 * The currently dragged handle.
+		 * If null, there is no drag under way.
+		 */
+		self.handle = null;
 	};
 	
-	Edge.prototype.exitSelectMode = function() {
-		var self = this;
-		self.pathItem.selected = false;
-	};
-	
-	Edge.prototype.addAnchor = function(x, y) {
-		var self = this;
-		self.pathItem.insert(1, [x, y]);
-		paper.view.draw();
-	};
-	
-	Edge.prototype.moveMiddlePoint = function(point) {
+	/**
+	 * Inits the paper.js tool.
+	 * 
+	 * @see https://gist.github.com/puckey/1124831
+	 */
+	EditOperation.prototype.initPaperItems = function() {
 		var self = this;
 		
-		self.middlePoint = point;
+		self.tool = new paper.Tool();
+		self.tool.minDistance = 10;
 		
-		if(self.pathItem.segments.length > 2) {
-			self.pathItem.removeSegment(1);
+		self.tool.onMouseDown = self._handleMouseDown.bind(self);
+		self.tool.onMouseDrag = self._handleMouseDrag.bind(self);
+	};
+	
+	/**
+	 * Handles mousedown with the edit tool.
+	 * 
+	 * Clicking a handle selects that.
+	 * Clicking empty space exits edit mode.
+	 * 
+	 * @param A paper.js ToolEvent instance.
+	 */
+	EditOperation.prototype._handleMouseDown = function(e) {
+		var self = this;
+		
+		var hitResult = self.edge.pathItem.hitTest(e.point, {
+			handles: true
+		});
+		
+		if(hitResult == null) {
+			self.end();
+			return;
 		}
-		else console.warn('stella');
-		self.pathItem.insert(1, self.middlePoint);
 		
-		self.pathItem.smooth();
+		if(hitResult.segment.index == 0) {
+			self.handle = hitResult.segment.handleOut;
+		}
+		else {
+			self.handle = hitResult.segment.handleIn;
+		}
+	};
+	
+	/**
+	 * If there is a handle selected, move it.
+	 * 
+	 * @param A paper.js ToolEvent instance.
+	 */
+	EditOperation.prototype._handleMouseDrag = function(e) {
+		var self = this;
 		
-		paper.view.draw();
+		if(self.handle == null) {
+			return;
+		}
+		
+		self.handle.x += e.delta.x;
+		self.handle.y += e.delta.y;
+	};
+	
+	/**
+	 * Starts an edit operation session.
+	 * 
+	 * @param The Edge instance to be manipulated.
+	 */
+	EditOperation.prototype.start = function(edge) {
+		var self = this;
+		
+		self.edge = edge;
+		self.edge.pathItem.fullySelected = true;
+		
+		self.tool.activate();
+		
+		app.messages.info('Edit mode.');
+	};
+	
+	/**
+	 * Ends the currently active edit operation session.
+	 */
+	EditOperation.prototype.end = function() {
+		var self = this;
+		
+		self.edge.pathItem.fullySelected = false;
+		self.edge = null;
+		
+		self.graph.tool.activate();
+		
+		app.messages.clear();
 	};
 	
 	
