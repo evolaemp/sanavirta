@@ -2,10 +2,11 @@
 
 /* colours */
 
-@blue: #4A748C;
+@blue: #409EAA;
 @orange: #EA7525;
 @grey: #1D1E21;
 @green: #48F3AF;
+
 	
 
 /* mixins */
@@ -65,6 +66,7 @@
 /* global */
 
 html, body {
+	color: @grey;
 	font-family: 'Fira Sans', sans-serif;
 	font-size: 15px;
 	font-weight: 400;
@@ -73,16 +75,29 @@ html, body {
 }
 
 button {
-	color: inherit;
-	font-size: inherit;
-	font-weight: inherit;
-	letter-spacing: normal;
-	margin: 0;
-	padding: 0;
+	border: 3px solid transparent;
+	border-radius: 5px;
+	background-color: white;
+	cursor: pointer;
+	height: 36px;
+	font-weight: bold;
+	padding: 0 5px;
 	text-align: center;
 	text-transform: none;
-	&:hover {
-		color: inherit;
+	&:hover, &:focus {
+		border: 3px solid @orange;
+	}
+}
+
+select {
+	border: 3px solid transparent;
+	background: white;
+	border-radius: 5px;
+	cursor: pointer;
+	outline: none;
+	padding: 5px 10px;
+	&:hover, &:focus {
+		border: 3px solid @orange;
 	}
 }
 
@@ -159,7 +174,7 @@ aside {
 	}
 	input#globe:checked ~ section.articles {
 		.globe {
-			display: block;
+			.flex;
 		}
 	}
 	input#graph:checked ~ section.articles {
@@ -174,24 +189,33 @@ aside {
 		overflow-y: auto;
 		position: relative;
 		article {
+			box-sizing: border-box;
+			display: none;
 			padding: 20px;
 			position: absolute;
 			top: 0;
-			h2 {
-				margin: 10px;;
-			}
-			p {
-				margin: 10px;
+			h4 {
 			}
 			select {
-				margin: 10px;
+				background-color: fade(@grey, 10%);
+				margin: 0 0 30px 0;
+				&:hover {
+					border: 3px solid @green;
+				}
+			}
+			button {
+				background-color: fade(@grey, 10%);
+				margin: 0 0 30px 0;
+				&:hover {
+					border: 3px solid @green;
+				}
 			}
 		}
 		.globe {
-			display: none;
+			.flex-direction(column);
+			.justify-content;
 		}
 		.graph {
-			display: none;
 			input[type="file"] {
 			}
 		}
@@ -202,35 +226,12 @@ aside {
 		.align;
 		background-color: lighten(@green, 15%);
 		height: 10vh;
-		select {
-			border: 3px solid transparent;
-			background: white;
-			border-radius: 5px;
-			cursor: pointer;
-			outline: none;
-			padding: 5px 10px;
-			&:hover, &:focus {
-				border: 3px solid @orange;
-			}
-		}
-		button {
-			border: 3px solid transparent;
-			border-radius: 5px;
-			background-color: white;
-			cursor: pointer;
-			height: 36px;
-			font-weight: bold;
-			padding: 0 5px;
-			&:hover, &:focus {
-				border: 3px solid @orange;
-			}
-		}
 	}
 }
 
 main {
 	.flex-size(3);
-	background-color: @grey;
+	background-color: @blue;
 	height: 100vh;
 	margin: 0;
 	overflow: hidden;

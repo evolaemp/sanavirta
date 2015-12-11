@@ -119,15 +119,16 @@ app.graphs = (function() {
 		
 		/* handle styles */
 		self.edgesLayer.style = {
-			strokeColor: 'yellowgreen'
+			strokeColor: '#48F3AF'
 		};
 		self.nodesLayer.style = {
-			fillColor: 'skyblue'
+			fillColor: '#1D1E21'
 		};
 		self.textLayer.style = {
-			fillColor: 'black',
-			fontFamily: 'Fira Sans',
-			fontSize: 9
+			fillColor: 'white',
+			fontFamily: 'monospace',
+			fontWeight: 'bold',
+			fontSize: 12
 		};
 		
 		/* re-draw the canvas */
@@ -247,7 +248,7 @@ app.graphs = (function() {
 		
 		self.circleItem = new paper.Path.Circle({
 			parent: self.graph.nodesLayer,
-			radius: 12
+			radius: 15
 		});
 		
 		self.textItem = new paper.PointText({
