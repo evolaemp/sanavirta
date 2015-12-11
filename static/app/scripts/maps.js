@@ -83,6 +83,7 @@ app.maps = (function() {
 		self.graph.initCanvas(canvas);
 		$.get('/api/file/').done(function(data) {
 			self.graph.setData(data);
+			self.graph.beautify();
 		});
 	};
 	

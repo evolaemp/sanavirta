@@ -192,6 +192,20 @@ app.graphs = (function() {
 	};
 	
 	/**
+	 * Makes a pitiful attempt at avoiding edges crossing nodes.
+	 */
+	Graph.prototype.beautify = function() {
+		var self = this;
+		var i;
+		
+		for(i = 0; i < self.edges.length; i++) {
+			self.edges[i].beautify();
+		}
+		
+		paper.view.draw();
+	};
+	
+	/**
 	 * Proxy for app.globes.Globe.getCanvasCoords().
 	 * 
 	 * @param Some latitude.
@@ -358,10 +372,14 @@ app.graphs = (function() {
 	Edge.prototype.initPaperItems = function() {
 		var self = this;
 		
+		var opacity = (self.weight + 3) / 10;
+		if(opacity > 1) opacity = 1;
+		
 		self.pathItem = new paper.Path({
 			parent: self.graph.edgesLayer,
 			closed: false,
-			strokeWidth: self.weight * 1.5
+			strokeWidth: self.weight * 1.75,
+			opacity: opacity
 		});
 		
 		if(self.isDirected) {
@@ -455,6 +473,36 @@ app.graphs = (function() {
 				self.pathItem.segments[1].point.x + self.pathItem.segments[1].handleIn.x,
 				self.pathItem.segments[1].point.y + self.pathItem.segments[1].handleIn.y
 			);
+		}
+	};
+	
+	/**
+	 * 
+	 */
+	Edge.prototype.beautify = function() {
+		var self = this;
+		var i, node, A, B, C, vector;
+		
+		for(i = 0; i < self.graph.nodes.length; i++) {
+			node = self.graph.nodes[i];
+			if(node.name == self.head.name || node.name == self.tail.name) {
+				continue;
+			}
+			if(!self.pathItem.intersects(node.circleItem)) {
+				continue;
+			}
+			A = self.pathItem.segments[0].point;
+			B = self.pathItem.segments[1].point;
+			C = new paper.Point(node.x, node.y);
+			vector = A.subtract(C).add(B.subtract(A).multiply(A.getDistance(C) / (A.getDistance(C) + B.getDistance(C))));
+			// console.log(self.head.name, self.tail.name, node.name, vector);
+			vector.length = 40;
+			// vector = vector.multiply(5);
+			while(true) {
+				self.moveHandle('head', vector);
+				self.moveHandle('tail', vector);
+				if(!self.pathItem.intersects(node.circleItem)) break;
+			}
 		}
 	};
 	
@@ -584,7 +632,8 @@ app.graphs = (function() {
 	return {
 		Graph: Graph,
 		Node: Node,
-		Edge: Edge
+		Edge: Edge,
+		EditOperation: EditOperation
 	};
 	
 }());
