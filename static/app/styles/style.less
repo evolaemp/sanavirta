@@ -2,8 +2,8 @@
 
 /* colours */
 
-@blue: #409EAA;
-@orange: #EA7525;
+@blue: #3687AA;
+@orange: #F44A07;
 @grey: #1D1E21;
 @green: #48F3AF;
 
@@ -116,6 +116,7 @@ aside {
 	border-left: 20px solid lighten(@green, 15%);
 	border-right: 20px solid lighten(@green, 15%);
 	box-sizing: border-box;
+	box-shadow: -3px 0 3px black;
 	header {
 		.flex;
 		.justify-content;
@@ -179,7 +180,7 @@ aside {
 	}
 	input#graph:checked ~ section.articles {
 		.graph {
-			display: block;
+			.flex;
 		}
 	}
 	section.articles {
@@ -194,21 +195,37 @@ aside {
 			padding: 20px;
 			position: absolute;
 			top: 0;
-			h4 {
-			}
 			select {
 				background-color: fade(@grey, 10%);
 				margin: 0 0 30px 0;
+				&:hover, &:focus {
+					border: 3px solid @green;
+				}
+			}
+			label {
+				font-weight: bold;
+				margin: 0 0 15px 0;
+			}
+			input[type="color"] {
+				background-color: fade(@grey, 10%);
+				border: 3px solid white;
+				border-radius: 5px;
+				height: 50px;
+				width: 50px;
+				margin: 0 0 30px 0;
+				padding: 0;
+				outline: none;
 				&:hover {
 					border: 3px solid @green;
 				}
 			}
-			button {
-				background-color: fade(@grey, 10%);
+			input[type="file"] {
+				padding: 5px 0;
 				margin: 0 0 30px 0;
-				&:hover {
-					border: 3px solid @green;
-				}
+				max-width: 200px;
+			}
+			label[for="browse"]  {
+				margin: 20px 0;
 			}
 		}
 		.globe {
@@ -216,8 +233,8 @@ aside {
 			.justify-content;
 		}
 		.graph {
-			input[type="file"] {
-			}
+			.flex-direction(column);
+			.justify-content;
 		}
 	}
 	section.download {
@@ -225,7 +242,9 @@ aside {
 		.justify-content(space-around);
 		.align;
 		background-color: lighten(@green, 15%);
+		box-sizing: border-box;
 		height: 10vh;
+		padding: 15px;
 	}
 }
 
@@ -247,23 +266,27 @@ main {
 
 footer {
 	.messages {
-		bottom: 10px;
+		background: @orange;
+		top: 10px;
 		left: 10px;
 		position: absolute;
 		.message {
-			color: white;
+			box-shadow: 0px 0px 3px black;
+			color: @grey;
 			font-size: 18px;
 			height: 50px;
 			line-height: 50px;
 			padding: 0 18px;
+			text-align: center;
+			width: 300px;
 			&.error {
 				background-color: @orange;
 			}
 			&.success {
-				background-color: @blue;
+				background-color: @orange;
 			}
 			&.info {
-				background-color: @blue;
+				background-color: @green;
 			}
 		}
 	}

@@ -119,7 +119,7 @@ app.graphs = (function() {
 		
 		/* handle styles */
 		self.edgesLayer.style = {
-			strokeColor: '#1D1E21'
+			strokeColor: '#F44A07'
 		};
 		self.nodesLayer.style = {
 			fillColor: '#1D1E21'

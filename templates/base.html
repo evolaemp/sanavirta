@@ -30,17 +30,19 @@
 					<option>Option 2</option>
 					<option>Option 3</option>
 				</select>
-				<h4>Select ocean colour</h4>
-				<label>
-					<button type="button">ocean colour</button>
-				</label>
-				<h4>Select earth colour</h4>
-				<label>
-					<button type="button">earth colour</button>
-				</label>
+				<label for="ocean-color">Select ocean colour</label>
+				<input type="color" id="ocean-color" value="#3687AA" />
+				<label for="earth-color">Select earth colour</label>
+				<input type="color" id="earth-color" value="#ffffff"/>
 			</article>
 			<article class="graph">
-				<label for="browse"><input id="browse" type="file" name="browse" /></label>
+				<label for="browse">Upload</label>
+				<input id="browse" type="file" name="browse" />
+				<label for="stroke-color">Select stroke colour</label>
+				<input type="color" id="stroke-color" value="#F44A07" />
+				<label for="fill-color">Select fill colour</label>
+				<input type="color" id="fill-color" value="#1D1E21" />
+				
 			</article>
 			</section>
 			<section class="download">
