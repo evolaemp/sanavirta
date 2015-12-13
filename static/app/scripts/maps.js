@@ -3,6 +3,7 @@
  * 
  * @module
  * 
+ * @requires jQuery
  * @requires app.globes.Globe
  * @requires app.graphs.Graph
  */
@@ -43,7 +44,7 @@ app.maps = (function() {
 	};
 	
 	/**
-	 * Inits the map's globe instance.
+	 * Inits the map's Globe instance.
 	 */
 	Map.prototype.initGlobe = function() {
 		var self = this;
@@ -64,11 +65,14 @@ app.maps = (function() {
 		canvas.classList.add('globe');
 		
 		self.globe.initCanvas(canvas);
-		self.globe.setData(EARTH);
+		
+		if(EARTH) {
+			self.globe.setData(EARTH);
+		}
 	};
 	
 	/**
-	 * 
+	 * Inits the map's Graph instance.
 	 */
 	Map.prototype.initGraph = function() {
 		var self = this;
@@ -104,6 +108,60 @@ app.maps = (function() {
 		if(self.graph) {
 			self.graph.redraw();
 		}
+	};
+	
+	/**
+	 * Makes AJAX request to the API for globe data and sets it.
+	 * 
+	 * @param The ID of the globe requested.
+	 */
+	Map.prototype.loadGlobeData = function(globeId) {
+		var self = this;
+		
+		if(!self.globe) {
+			return;
+		}
+		
+		$.get('/api/globe/'+ globeId +'/')
+		.done(function(data) {
+			app.messages.success('Globe loaded.');
+			self.globe.setData(data);
+		})
+		.fail(function() {
+			app.messages.error('Globe not found.');
+		});
+	};
+	
+	/**
+	 * Uploads the given File instance to the API for processing and sets the
+	 * graph correspondingly.
+	 * 
+	 * @param File instance.
+	 */
+	Map.prototype.loadGraphFile = function(file) {
+		var self = this;
+		var formData = new FormData();
+		formData.append('file', file);
+		
+		$.ajax({
+			url: '/api/file/',
+			method: 'POST',
+			data: formData,
+			processData: false,
+			contentType: false
+		})
+		.done(function(data) {
+			app.messages.success('Graph loaded.');
+			self.graph.setData(data);
+			self.graph.beautify();
+		})
+		.fail(function(xhr) {
+			var error = 'File could not be loaded.';
+			try {
+				error = xhr.responseJSON.error;
+			} catch(e) {};
+			app.messages.error(error);
+		});
 	};
 	
 	
@@ -200,11 +258,90 @@ app.maps = (function() {
 	
 	
 	/**
+	 * Class definition for map settings.
+	 * 
+	 * @class
+	 * @param An app.maps.Map instance.
+	 */
+	var MapSettings = function(map) {
+		var self = this;
+		
+		/**
+		 * The Map instance that the settings will set.
+		 */
+		self.map = map;
+		
+		/**
+		 * The dom container containing the settings.
+		 */
+		self.dom = null;
+	};
+	
+	/**
+	 * Attaches the relevant event listeners.
+	 * 
+	 * @param A jQuery element.
+	 */
+	MapSettings.prototype.initDom = function(dom) {
+		var self = this;
+		self.dom = dom;
+		
+		/**
+		 * Globe settings.
+		 */
+		self.dom.find('select#select-globe').change(function(e) {
+			app.messages.info('Loading&hellip;');
+			self.map.loadGlobeData($(this).val());
+			/**
+			 * Prevent the field from interfering with the arrow keys used for
+			 * moving around the globe.
+			 */
+			$(this).blur();
+		});
+		
+		self.dom.find('input#ocean-color').change(function(e) {
+			self.map.dom.style.backgroundColor = $(this).val();
+		});
+		
+		self.dom.find('input#earth-color').change(function(e) {
+			self.map.globe.earthColor = $(this).val();
+			self.map.redraw();
+		});
+		
+		/**
+		 * Graph settings.
+		 */
+		self.dom.find('input#graph-file').change(function(e) {
+			var fileList = this.files;
+			if(fileList.length != 1) {
+				app.messages.error('No file selected.');
+				return;
+			}
+			app.messages.info('Loading&hellip;');
+			self.map.loadGraphFile(fileList[0]);
+			$(this).blur();
+		});
+		
+		self.dom.find('input#edge-color').change(function(e) {
+			self.map.graph.edgeColor = $(this).val();
+			self.map.graph.redraw();
+		});
+		
+		self.dom.find('input#node-color').change(function(e) {
+			self.map.graph.nodeColor = $(this).val();
+			self.map.graph.redraw();
+		});
+	};
+	
+	
+	
+	/**
 	 * Module exports.
 	 */
 	return {
 		Map: Map,
-		Viewport: Viewport
+		Viewport: Viewport,
+		MapSettings: MapSettings
 	};
 	
 }());

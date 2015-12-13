@@ -18,42 +18,41 @@
 		<header>
 			<h1>sanavirta</h1>
 		</header>
-		<input type="radio" name="tabs" id="globe" checked/>
+		<input type="radio" name="tabs" id="globe" checked />
 		<label for="globe"><div></div></label>
 		<input type="radio" name="tabs" id="graph"/>
 		<label for="graph"><div></div></label>
 		<section class="articles">
 			<article class="globe">
-				<h4>Select globe</h4>
-				<select>
-					<option>Option 1</option>
-					<option>Option 2</option>
-					<option>Option 3</option>
+				<label for="select-globe">globe</label>
+				<select id="select-globe">
+				{% for globe in globes %}
+					<option value="{{ globe.pk }}">{{ globe.name }}</option>
+				{% endfor %}
 				</select>
-				<label for="ocean-color">Select ocean colour</label>
+				<label for="ocean-color">ocean colour</label>
 				<input type="color" id="ocean-color" value="#3687AA" />
-				<label for="earth-color">Select earth colour</label>
+				<label for="earth-color">earth colour</label>
 				<input type="color" id="earth-color" value="#ffffff"/>
 			</article>
 			<article class="graph">
-				<label for="browse">Upload</label>
-				<input id="browse" type="file" name="browse" />
-				<label for="stroke-color">Select stroke colour</label>
-				<input type="color" id="stroke-color" value="#F44A07" />
-				<label for="fill-color">Select fill colour</label>
-				<input type="color" id="fill-color" value="#1D1E21" />
-				
+				<label for="graph-file">.dot file</label>
+				<input type="file" id="graph-file" />
+				<label for="edge-color">edge colour</label>
+				<input type="color" id="edge-color" value="#F44A07" />
+				<label for="node-color">node colour</label>
+				<input type="color" id="node-color" value="#1D1E21" />
 			</article>
-			</section>
-			<section class="download">
-				<select class="format">
-					<option>.jpg</option>
-					<option>.pdf</option>
-					<option>.png</option>
-				</select>
-				<button type="button">download</button>
-			</section>
-		</aside>
+		</section>
+		<section class="download">
+			<select class="format">
+				<option>.png</option>
+				<option>.svg</option>
+			</select>
+			<button type="button">download</button>
+		</section>
+	</aside>
+	
 	<main id="map"></main>
 	
 	<footer>

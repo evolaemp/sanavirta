@@ -94,6 +94,10 @@ var app = (function() {
 			appInstance.map.initGraph();
 			appInstance.map.redraw();
 		}
+		if($('aside').length > 0) {
+			appInstance.settings = new app.maps.MapSettings(appInstance.map);
+			appInstance.settings.initDom($('aside'));
+		}
 	});
 	
 	

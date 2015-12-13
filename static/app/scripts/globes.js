@@ -45,6 +45,11 @@ app.globes = (function() {
 		 * The GeoJSON/TopoJSON data source.
 		 */
 		self.data = null;
+		
+		/**
+		 * The settable colours.
+		 */
+		self.earthColor = 'white';
 	};
 	
 	/**
@@ -57,7 +62,6 @@ app.globes = (function() {
 		
 		self.canvas = canvas;
 		self.context = self.canvas.getContext('2d');
-		self.context.fillStyle = 'white';
 		
 		self.projection = d3.geo.orthographic().clipAngle(90);
 		self.projection.translate([self.canvas.width / 2, self.canvas.height / 2]);
@@ -90,6 +94,7 @@ app.globes = (function() {
 		
 		// clear and redraw
 		self.context.clearRect(0, 0, self.canvas.width, self.canvas.height);
+		self.context.fillStyle = self.earthColor;
 		self.context.beginPath();
 		for(var i = 0; i < self.data.features.length; i++) {
 			self.path.context(self.context)(self.data.features[i]);

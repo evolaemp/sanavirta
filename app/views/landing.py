@@ -23,12 +23,13 @@ class LandingView(View):
 		"""
 		Renders the landing page.
 		"""
-		globe = Globe.objects.get(pk=1)
+		globes = Globe.objects.all()
 		
 		return render_to_response(
 			'landing.html',
 			{
-				'EARTH': globe.geo_json
+				'globes': globes,
+				'EARTH': globes[0].geo_json
 			},
 			context_instance = RequestContext(request)
 		)

@@ -53,6 +53,12 @@ app.graphs = (function() {
 		 * The EditOperation instance associated with the graph.
 		 */
 		self.editOperation = new EditOperation(self);
+		
+		/**
+		 * The settable colours.
+		 */
+		self.edgeColor = '#F44A07';
+		self.nodeColor = '#1D1E21';
 	};
 	
 	/**
@@ -119,10 +125,10 @@ app.graphs = (function() {
 		
 		/* handle styles */
 		self.edgesLayer.style = {
-			strokeColor: '#F44A07'
+			strokeColor: self.edgeColor
 		};
 		self.nodesLayer.style = {
-			fillColor: '#1D1E21'
+			fillColor: self.nodeColor
 		};
 		self.textLayer.style = {
 			fillColor: 'white',
@@ -136,10 +142,17 @@ app.graphs = (function() {
 	};
 	
 	/**
+	 * (Re-)sets the nodes and edges of the graph.
 	 * 
+	 * @see app.views.file_api.FileApiView.
+	 * @param The data object.
 	 */
 	Graph.prototype.setData = function(data) {
 		var self = this;
+		
+		if(self.nodes.length > 0 || self.edges.length > 0) {
+			self.reset();
+		}
 		
 		var isoCode, node;
 		for(isoCode in data.nodes) {
@@ -189,6 +202,32 @@ app.graphs = (function() {
 			}
 		}
 		return null;
+	};
+	
+	/**
+	 * Removes the currently loaded nodes and edges.
+	 * 
+	 * @see Graph.setData().
+	 */
+	Graph.prototype.reset = function() {
+		var self = this;
+		
+		if(self.editOperation.edge) {
+			self.editOperation.end();
+		}
+		
+		var i;
+		for(i = 0; i < self.edges.length; i++) {
+			self.edges[i].remove();
+		}
+		for(i = 0; i < self.nodes.length; i++) {
+			self.nodes[i].remove();
+		}
+		
+		self.edges = [];
+		self.nodes = [];
+		
+		paper.view.draw();
 	};
 	
 	/**
@@ -320,6 +359,19 @@ app.graphs = (function() {
 			return false;
 		}
 		else return true;
+	};
+	
+	/**
+	 * Removes the paper.js items.
+	 */
+	Node.prototype.remove = function() {
+		var self = this;
+		
+		self.circleItem.remove();
+		self.circleItem = null;
+		
+		self.textItem.remove();
+		self.textItem = null;
 	};
 	
 	
@@ -477,7 +529,7 @@ app.graphs = (function() {
 	};
 	
 	/**
-	 * 
+	 * If the edge intersects a node, tries to curve itself out of the way.
 	 */
 	Edge.prototype.beautify = function() {
 		var self = this;
@@ -503,6 +555,21 @@ app.graphs = (function() {
 				self.moveHandle('tail', vector);
 				if(!self.pathItem.intersects(node.circleItem)) break;
 			}
+		}
+	};
+	
+	/**
+	 * Removes the paper.js items.
+	 */
+	Edge.prototype.remove = function() {
+		var self = this;
+		
+		self.pathItem.remove();
+		self.pathItem = null;
+		
+		if(self.arrowItem) {
+			self.arrowItem.remove();
+			self.arrowItem = null;
 		}
 	};
 	

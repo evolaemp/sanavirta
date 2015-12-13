@@ -67,6 +67,7 @@ app.messages = (function() {
 		error: function(text) {
 			exports.clear();
 			current = new Message('error', text);
+			setTimeout(exports.clear, 5000);
 			return current;
 		},
 		info: function(text) {

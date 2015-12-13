@@ -38,12 +38,13 @@ class FileApiView(View):
 		Receives .dot files and returns ready-for-front-end-consumption graphs.
 		
 		POST
-			file	# the .dot file
+			file		# the .dot file
 		
 		200:
-			name	# pretty file name
-			nodes	# list of {language, latitude, longitude}
-			edges	# list of {head, tail, weight}
+			name		# pretty file name
+			nodes		# [] of [language, latitude, longitude]
+			directed	# [] of [head, tail, weight]
+			undirected	# [] of [head, tail, weight]
 		
 		400: error
 		"""
