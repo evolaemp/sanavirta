@@ -47,6 +47,18 @@ class FileApiTestCase(TestCase):
 		self.assertEqual(len(d), 1)
 		
 		self.assertIn('error', d)
+	
+	def test_get(self):
+		response = self.client.get(reverse('file_api'))
+		self.assertEqual(response.status_code, 200)
+		
+		d = read_json(response.content)
+		self.assertEqual(len(d), 4)
+		
+		self.assertEqual(d['name'], 'LanguageGraph')
+		self.assertEqual(len(d['nodes']), 44)
+		self.assertEqual(len(d['undirected']), 87)
+		self.assertEqual(len(d['directed']), 17)
 
 
 

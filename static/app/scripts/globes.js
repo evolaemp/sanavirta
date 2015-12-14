@@ -48,7 +48,9 @@ app.globes = (function() {
 		
 		/**
 		 * The settable colours.
+		 * @see app.maps.Map.exportToDataURL().
 		 */
+		self.oceanColor = '#3687AA';
 		self.earthColor = 'white';
 	};
 	

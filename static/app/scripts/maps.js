@@ -164,6 +164,29 @@ app.maps = (function() {
 		});
 	};
 	
+	/**
+	 * Exports the map to a data URL using a temporary canvas to merge the
+	 * globe and graph canvases.
+	 * 
+	 * @param The image format.
+	 * @return The data URL.
+	 */
+	Map.prototype.exportToDataURL = function(format) {
+		var self = this;
+		
+		var canvas = document.createElement('canvas');
+		canvas.width = self.dom.offsetWidth;
+		canvas.height = self.dom.offsetHeight;
+		
+		var context = canvas.getContext('2d');
+		context.fillStyle = self.globe.oceanColor;
+		context.fillRect(0, 0, canvas.width, canvas.height);
+		context.drawImage(self.globe.canvas, 0, 0);
+		context.drawImage(self.graph.canvas, 0, 0);
+		
+		return canvas.toDataURL('image/' + format, 1.0);
+	};
+	
 	
 	
 	/**
@@ -300,6 +323,7 @@ app.maps = (function() {
 		});
 		
 		self.dom.find('input#ocean-color').change(function(e) {
+			self.map.globe.oceanColor = $(this).val();
 			self.map.dom.style.backgroundColor = $(this).val();
 		});
 		
@@ -330,6 +354,19 @@ app.maps = (function() {
 		self.dom.find('input#node-color').change(function(e) {
 			self.map.graph.nodeColor = $(this).val();
 			self.map.graph.redraw();
+		});
+		
+		/**
+		 * Exports.
+		 */
+		self.dom.find('select#select-format').change(function(e) {
+			$(this).blur();
+		});
+		
+		self.dom.find('a#download-button').click(function(e) {
+			var format = $('select#select-format').val();
+			this.href = self.map.exportToDataURL(format);
+			this.download = 'map.' + format;
 		});
 	};
 	

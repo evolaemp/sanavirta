@@ -74,19 +74,26 @@ html, body {
 	text-rendering: optimizeLegibility;
 }
 
-button {
+button, a.button {
 	border: 3px solid transparent;
 	border-radius: 5px;
 	background-color: white;
 	cursor: pointer;
-	height: 36px;
 	font-weight: bold;
+	height: 36px;
 	padding: 0 5px;
 	text-align: center;
 	text-transform: none;
 	&:hover, &:focus {
 		border: 3px solid @orange;
 	}
+}
+a.button {
+	box-sizing: border-box;
+	color: inherit;
+	display: inline-block;
+	line-height: 30px;
+	text-decoration: none;
 }
 
 select {
@@ -283,10 +290,10 @@ footer {
 				background-color: @orange;
 			}
 			&.success {
-				background-color: @green;
+				background-color: lighten(@green, 15%);
 			}
 			&.info {
-				background-color: @green;
+				background-color: lighten(@green, 15%);
 			}
 		}
 	}

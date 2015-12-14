@@ -171,15 +171,16 @@ app.graphs = (function() {
 				self.getNode(data.undirected[i][1])
 			);
 			edge.weight = data.undirected[i][2];
+			edge.isDirected = false;
 			edge.initPaperItems();
 			self.edges.push(edge);
 		}
 		for(i = 0; i < data.directed.length; i++) {
 			edge = new Edge(self,
-				self.getNode(data.undirected[i][0]),
-				self.getNode(data.undirected[i][1])
+				self.getNode(data.directed[i][0]),
+				self.getNode(data.directed[i][1])
 			);
-			edge.weight = data.undirected[i][2];
+			edge.weight = data.directed[i][2];
 			edge.isDirected = true;
 			edge.initPaperItems();
 			self.edges.push(edge);
@@ -438,7 +439,9 @@ app.graphs = (function() {
 			self.arrowItem = new paper.Path({
 				parent: self.graph.edgesLayer,
 				closed: false,
-				strokeWidth: 2.5
+				// strokeWidth: 2.5,
+				strokeWidth: self.weight * 1.75,
+				opacity: opacity
 			});
 		}
 	};
@@ -473,31 +476,61 @@ app.graphs = (function() {
 				self.headHandleGeo[0],
 				self.headHandleGeo[1]
 			);
-			self.pathItem.segments[0].handleOut.x = headHandle[0] - self.pathItem.segments[0].point.x;
-			self.pathItem.segments[0].handleOut.y = headHandle[1] - self.pathItem.segments[0].point.y;
+			if(headHandle) {  // might be on the dark side
+				self.pathItem.segments[0].handleOut.x = headHandle[0] - self.pathItem.segments[0].point.x;
+				self.pathItem.segments[0].handleOut.y = headHandle[1] - self.pathItem.segments[0].point.y;
+			}
 		}
 		if(self.tailHandleGeo != null) {
 			var tailHandle = self.graph.getCanvasCoords(
 				self.tailHandleGeo[0],
 				self.tailHandleGeo[1]
 			);
-			self.pathItem.segments[1].handleIn.x = tailHandle[0] - self.pathItem.segments[1].point.x;
-			self.pathItem.segments[1].handleIn.y = tailHandle[1] - self.pathItem.segments[1].point.y;
+			if(tailHandle) {  // might be on the dark side
+				self.pathItem.segments[1].handleIn.x = tailHandle[0] - self.pathItem.segments[1].point.x;
+				self.pathItem.segments[1].handleIn.y = tailHandle[1] - self.pathItem.segments[1].point.y;
+			}
 		}
 		
 		/* draw the arrow head */
-		/*if(self.isDirected) {
-			var vector = new paper.Point(
-				self.tail.x - self.head.x,
-				self.tail.y - self.head.y
+		if(self.isDirected) {
+			self._redrawArrow();
+		}
+	};
+	
+	/**
+	 * (Re-)draws the arrow paper.js item.
+	 * This method exists for better readability.
+	 * 
+	 * @see Edge.redraw().
+	 */
+	Edge.prototype._redrawArrow = function() {
+		var self = this;
+		
+		self.arrowItem.segments = [
+			[self.tail.x - 27, self.tail.y - 8],
+			[self.tail.x - 15, self.tail.y],
+			[self.tail.x - 27, self.tail.y + 8]
+		];
+		
+		var angle = null;
+		if(self.tailHandleGeo) {
+			var handle = self.pathItem.segments[1].handleIn;
+			angle = Math.atan2(  // handle coords are relative
+				-handle.y,
+				-handle.x
 			);
-			var arrowVector = vector.normalize(20);
-			self.arrowItem.segments = [
-				arrowVector.rotate(135).add([self.tail.x, self.tail.y]),
-				[self.tail.x, self.tail.y],
-				arrowVector.rotate(-135).add([self.tail.x, self.tail.y]),
-			];
-		}*/
+		}
+		else {
+			angle = Math.atan2(
+				self.tail.y - self.head.y,
+				self.tail.x - self.head.x
+			);
+		}
+		angle = angle * 180 / Math.PI;
+		// console.log(self.head.name, self.tail.name, angle);
+		
+		self.arrowItem.rotate(angle, [self.tail.x, self.tail.y]);
 	};
 	
 	/**
@@ -525,6 +558,10 @@ app.graphs = (function() {
 				self.pathItem.segments[1].point.x + self.pathItem.segments[1].handleIn.x,
 				self.pathItem.segments[1].point.y + self.pathItem.segments[1].handleIn.y
 			);
+		}
+		
+		if(self.isDirected) {
+			self._redrawArrow();
 		}
 	};
 	
