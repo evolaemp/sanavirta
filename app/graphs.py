@@ -9,12 +9,20 @@ import re
 
 
 class Graph:
+	"""
+	The self.nodes dict is of the form node_name: [latitude, longitude].
+	The edge dicts are of the form (node, node): {}. The latter might contain
+	the edge's weight, colour, and/or opacity.
+	"""
 	
 	def __init__(self):
+		"""
+		Constructor.
+		"""
 		self.name = ''
 		self.nodes = {}
-		self.undirected = set()
-		self.directed = set()
+		self.undirected = {}
+		self.directed = {}
 	
 	
 	def add_node(self, node_name):
@@ -31,7 +39,7 @@ class Graph:
 		self.nodes[lang.iso_code] = (lang.latitude, lang.longitude)
 	
 	
-	def add_edge(self, node_one, node_two, is_directed=False, weight=0):
+	def add_edge(self, node_one, node_two, is_directed=False, information={}):
 		"""
 		Only adds edges between already known nodes.
 		"""
@@ -41,10 +49,16 @@ class Graph:
 		except AssertionError:
 			return
 		
+		try:
+			for key in information:
+				assert key in ('weight', 'colour', 'opacity',)
+		except AssertionError:
+			return
+		
 		if is_directed:
-			self.directed.add((node_one, node_two, weight))
+			self.directed[(node_one, node_two)] = information
 		else:
-			self.undirected.add((node_one, node_two, weight))
+			self.undirected[(node_one, node_two)] = information
 	
 	
 	def read_dot_string(self, string):
@@ -70,6 +84,32 @@ class Graph:
 			flags = re.DOTALL | re.MULTILINE
 		)
 		return string
+	
+	
+	def to_dict(self):
+		"""
+		Returns the graph as dict ready for JSON serialisation.
+		"""
+		undirected = []
+		for key, item in self.undirected.items():
+			d = dict(item)
+			d['head'] = key[0]
+			d['tail'] = key[1]
+			undirected.append(d)
+		
+		directed = []
+		for key, item in self.directed.items():
+			d = dict(item)
+			d['head'] = key[0]
+			d['tail'] = key[1]
+			directed.append(d)
+		
+		return {
+			'name': self.name,
+			'nodes': self.nodes,
+			'undirected': undirected,
+			'directed': directed
+		}
 
 
 
@@ -187,12 +227,22 @@ class SubgraphElement(Element):
 			is_directed = True
 		
 		for edge in self.edges:
+			information = {}
+			
 			try:
 				weight = int(edge.attr['penwidth'])
 			except (KeyError, ValueError):
-				weight = 0
+				weight = None
+			else:
+				information['weight'] = weight
 			
-			graph.add_edge(edge.left, edge.right, is_directed, weight)
+			if 'color' in edge.attr:
+				t = AttrStmtElement.parse_colour(edge.attr['color'])
+				information['colour'] = t[0]
+				if t[1] is not None:
+					information['opacity'] = t[1]
+			
+			graph.add_edge(edge.left, edge.right, is_directed, information)
 
 
 
@@ -287,6 +337,27 @@ class AttrStmtElement(Element):
 			string = string[:match.start('name')]
 		
 		return ''
+	
+	def parse_colour(string):
+		"""
+		Extracts the (colour, opacity) tuple out of /#.{8}/ colour encoding.
+		Static method.
+		"""
+		try:
+			assert len(string) == 9
+			assert string[0] == '#'
+		except AssertionError:  # assumes no opacity encoded
+			return (string, None)
+		
+		colour = string[:-2]
+		
+		try:
+			opacity = int(string[-2:], 16)
+			opacity = opacity / 255
+		except ValueError:
+			opacity = None
+		
+		return (colour, opacity)
 
 
 

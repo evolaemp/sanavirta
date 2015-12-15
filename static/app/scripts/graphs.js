@@ -167,20 +167,24 @@ app.graphs = (function() {
 		var i, edge;
 		for(i = 0; i < data.undirected.length; i++) {
 			edge = new Edge(self,
-				self.getNode(data.undirected[i][0]),
-				self.getNode(data.undirected[i][1])
+				self.getNode(data.undirected[i].head),
+				self.getNode(data.undirected[i].tail)
 			);
-			edge.weight = data.undirected[i][2];
+			edge.weight = data.undirected[i].weight;
+			if(data.undirected[i].colour) edge.colour = data.undirected[i].colour;
+			if(data.undirected[i].opacity) edge.opacity = data.undirected[i].opacity;
 			edge.isDirected = false;
 			edge.initPaperItems();
 			self.edges.push(edge);
 		}
 		for(i = 0; i < data.directed.length; i++) {
 			edge = new Edge(self,
-				self.getNode(data.directed[i][0]),
-				self.getNode(data.directed[i][1])
+				self.getNode(data.directed[i].head),
+				self.getNode(data.directed[i].tail)
 			);
-			edge.weight = data.directed[i][2];
+			edge.weight = data.directed[i].weight;
+			if(data.directed[i].colour) edge.colour = data.directed[i].colour;
+			if(data.directed[i].opacity) edge.opacity = data.directed[i].opacity;
 			edge.isDirected = true;
 			edge.initPaperItems();
 			self.edges.push(edge);
@@ -404,6 +408,8 @@ app.graphs = (function() {
 		 * The weight, this is represented as strokeWidth.
 		 */
 		self.weight = 1;
+		self.colour = null;
+		self.opacity = null;
 		
 		/**
 		 * The paper.js items.
@@ -574,19 +580,21 @@ app.graphs = (function() {
 		
 		for(i = 0; i < self.graph.nodes.length; i++) {
 			node = self.graph.nodes[i];
+			
 			if(node.name == self.head.name || node.name == self.tail.name) {
 				continue;
 			}
 			if(!self.pathItem.intersects(node.circleItem)) {
 				continue;
 			}
+			
 			A = self.pathItem.segments[0].point;
 			B = self.pathItem.segments[1].point;
 			C = new paper.Point(node.x, node.y);
+			
 			vector = A.subtract(C).add(B.subtract(A).multiply(A.getDistance(C) / (A.getDistance(C) + B.getDistance(C))));
-			// console.log(self.head.name, self.tail.name, node.name, vector);
 			vector.length = 40;
-			// vector = vector.multiply(5);
+			
 			while(true) {
 				self.moveHandle('head', vector);
 				self.moveHandle('tail', vector);

@@ -25,11 +25,50 @@ class GraphTestCase(TestCase):
 		self.assertIn('hrv', self.graph.nodes)
 		self.assertIn('yrk', self.graph.nodes)
 		
-		self.assertIn(('fin', 'krl', 4), self.graph.undirected)
-		self.assertIn(('bak', 'kaz', 4), self.graph.undirected)
+		self.assertIn(('fin', 'krl'), self.graph.undirected)
+		self.assertEqual(
+			self.graph.undirected[('fin', 'krl')],
+			{'weight': 4, 'colour': '#000000', 'opacity': 1.0}
+		)
 		
-		self.assertIn(('fin', 'smn', 3), self.graph.directed)
-		self.assertIn(('sel', 'rus', 2), self.graph.directed)
+		self.assertIn(('bak', 'kaz'), self.graph.undirected)
+		self.assertEqual(
+			self.graph.undirected[('bak', 'kaz')],
+			{'weight': 4, 'colour': '#000000', 'opacity': 1.0}
+		)
+		
+		self.assertIn(('fin', 'smn'), self.graph.directed)
+		self.assertEqual(
+			self.graph.directed[('fin', 'smn')],
+			{'weight': 3, 'colour': '#00cc66', 'opacity': 0.9294117647058824}
+		)
+		
+		self.assertIn(('sel', 'rus'), self.graph.directed)
+		self.assertEqual(
+			self.graph.directed[('sel', 'rus')],
+			{'weight': 2, 'colour': '#00cc66', 'opacity': 0.6235294117647059}
+		)
+	
+	def test_to_dict(self):
+		self.graph.add_node('fin')
+		self.graph.add_node('smn')
+		self.graph.add_edge('fin', 'smn', False, {'weight': 3})
+		
+		d = self.graph.to_dict()
+		self.assertIn('name', d)
+		self.assertIn('nodes', d)
+		self.assertEqual(len(d['nodes']), 2)
+		
+		self.assertIn('undirected', d)
+		self.assertEqual(len(d['undirected']), 1)
+		self.assertEqual(d['undirected'][0], {
+			'head': 'fin',
+			'tail': 'smn',
+			'weight': 3
+		})
+		
+		self.assertIn('directed', d)
+		self.assertEqual(len(d['directed']), 0)
 
 
 
@@ -88,6 +127,13 @@ class ElementTestCase(TestCase):
 		graph = GraphElement()
 		graph.parse('graph {}')
 		self.assertEqual(graph.name, '')
+	
+	def test_parse_colour(self):
+		f = AttrStmtElement.parse_colour
+		
+		self.assertEqual(f('white'), ('white', None))
+		self.assertEqual(f('#000000ff'), ('#000000', 1.0))
+		self.assertEqual(f('#00000000'), ('#000000', 0.0))
 
 
 

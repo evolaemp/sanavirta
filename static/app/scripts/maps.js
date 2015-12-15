@@ -184,7 +184,7 @@ app.maps = (function() {
 		context.drawImage(self.globe.canvas, 0, 0);
 		context.drawImage(self.graph.canvas, 0, 0);
 		
-		return canvas.toDataURL('image/' + format, 1.0);
+		return canvas.toDataURL('image/' + format);
 	};
 	
 	

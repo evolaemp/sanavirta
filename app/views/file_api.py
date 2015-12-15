@@ -25,12 +25,7 @@ class FileApiView(View):
 				'error': 'File could not be parsed.'
 			}, status=400)
 		
-		return JsonResponse({
-			'name': graph.name,
-			'nodes': graph.nodes,
-			'undirected': list(graph.undirected),
-			'directed': list(graph.directed)
-		}, status=200)
+		return JsonResponse(graph.to_dict(), status=200)
 	
 	
 	def post(self, request):
@@ -43,8 +38,8 @@ class FileApiView(View):
 		200:
 			name		# pretty file name
 			nodes		# [] of [language, latitude, longitude]
-			directed	# [] of [head, tail, weight]
-			undirected	# [] of [head, tail, weight]
+			directed	# [] of {head, tail, weight, colour, opacity}
+			undirected	# [] of {head, tail, weight, colour, opacity}
 		
 		400: error
 		"""
@@ -67,12 +62,7 @@ class FileApiView(View):
 				'error': 'File could not be parsed.'
 			}, status=400)
 		
-		return JsonResponse({
-			'name': graph.name,
-			'nodes': graph.nodes,
-			'undirected': list(graph.undirected),
-			'directed': list(graph.directed)
-		}, status=200)
+		return JsonResponse(graph.to_dict(), status=200)
 	
 	
 	def validate_file(self, request):

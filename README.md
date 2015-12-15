@@ -25,14 +25,9 @@ Now you have to create your own `settings_local.py` in the `project` directory.
 You should include at least the following settings:
 
 * `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`
-* `STATICFILES_DIRS`, `STATIC_ROOT`, `STATIC_URL`
-* `MEDIA_ROOT`, `MEDIA_URL`
-* `JS_TESTS_ROOT`, `QUNIT_ROOT`
+* `STATICFILES_DIRS`, `STATIC_URL`
 * `DATABASES`
-* `CACHES` (needed for storing uploaded files for subsequent API requests)
-* `EMAIL_BACKEND` (e.g. `locmem` for testing and `console` for developing),
-  `DEFAULT_FROM_EMAIL`, `EMAIL_SUBJECT_PREFIX`
-* `ADMINS`, `MANAGERS`
+* `EMAIL_BACKEND` (e.g. `locmem` for testing and `console` for developing)
 
 There is an example configuration in `project/settings_local.example`. You can
 use it for local development by copying the file (do not move it, as this would
