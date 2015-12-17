@@ -56,8 +56,10 @@ class Graph:
 			return
 		
 		if is_directed:
+			# self.directed.add((node_one, node_two, information['weight']))
 			self.directed[(node_one, node_two)] = information
 		else:
+			# self.undirected.add((node_one, node_two, information['weight']))
 			self.undirected[(node_one, node_two)] = information
 	
 	
@@ -90,25 +92,26 @@ class Graph:
 		"""
 		Returns the graph as dict ready for JSON serialisation.
 		"""
-		undirected = []
-		for key, item in self.undirected.items():
-			d = dict(item)
-			d['head'] = key[0]
-			d['tail'] = key[1]
-			undirected.append(d)
+		edges = []
 		
-		directed = []
+		for key, item in self.undirected.items():
+			d = {'head': key[0], 'tail': key[1], 'is_directed': False}
+			for attr in ('weight', 'colour', 'opacity',):
+				if attr in item:
+					d[attr] = item[attr]
+			edges.append(d)
+		
 		for key, item in self.directed.items():
-			d = dict(item)
-			d['head'] = key[0]
-			d['tail'] = key[1]
-			directed.append(d)
+			d = {'head': key[0], 'tail': key[1], 'is_directed': True}
+			for attr in ('weight', 'colour', 'opacity',):
+				if attr in item:
+					d[attr] = item[attr]
+			edges.append(d)
 		
 		return {
 			'name': self.name,
 			'nodes': self.nodes,
-			'undirected': undirected,
-			'directed': directed
+			'edges': edges
 		}
 
 

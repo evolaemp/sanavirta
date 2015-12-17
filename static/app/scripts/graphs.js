@@ -114,15 +114,6 @@ app.graphs = (function() {
 	Graph.prototype.redraw = function() {
 		var self = this;
 		
-		/* re-calculate positions of nodes and edges */
-		var i;
-		for(i = 0; i < self.nodes.length; i++) {
-			self.nodes[i].redraw();
-		}
-		for(i = 0; i < self.edges.length; i++) {
-			self.edges[i].redraw();
-		}
-		
 		/* handle styles */
 		self.edgesLayer.style = {
 			strokeColor: self.edgeColor
@@ -136,6 +127,15 @@ app.graphs = (function() {
 			fontWeight: 'bold',
 			fontSize: 12
 		};
+		
+		/* re-calculate positions of nodes and edges */
+		var i;
+		for(i = 0; i < self.nodes.length; i++) {
+			self.nodes[i].redraw();
+		}
+		for(i = 0; i < self.edges.length; i++) {
+			self.edges[i].redraw();
+		}
 		
 		/* re-draw the canvas */
 		paper.view.draw();
@@ -165,27 +165,15 @@ app.graphs = (function() {
 		}
 		
 		var i, edge;
-		for(i = 0; i < data.undirected.length; i++) {
+		for(i = 0; i < data.edges.length; i++) {
 			edge = new Edge(self,
-				self.getNode(data.undirected[i].head),
-				self.getNode(data.undirected[i].tail)
+				self.getNode(data.edges[i].head),
+				self.getNode(data.edges[i].tail)
 			);
-			edge.weight = data.undirected[i].weight;
-			if(data.undirected[i].colour) edge.colour = data.undirected[i].colour;
-			if(data.undirected[i].opacity) edge.opacity = data.undirected[i].opacity;
-			edge.isDirected = false;
-			edge.initPaperItems();
-			self.edges.push(edge);
-		}
-		for(i = 0; i < data.directed.length; i++) {
-			edge = new Edge(self,
-				self.getNode(data.directed[i].head),
-				self.getNode(data.directed[i].tail)
-			);
-			edge.weight = data.directed[i].weight;
-			if(data.directed[i].colour) edge.colour = data.directed[i].colour;
-			if(data.directed[i].opacity) edge.opacity = data.directed[i].opacity;
-			edge.isDirected = true;
+			edge.isDirected = data.edges[i].is_directed;
+			edge.weight = data.edges[i].weight;
+			if(data.edges[i].colour) edge.colour = data.edges[i].colour;
+			if(data.edges[i].opacity) edge.opacity = data.edges[i].opacity;
 			edge.initPaperItems();
 			self.edges.push(edge);
 		}
@@ -408,6 +396,10 @@ app.graphs = (function() {
 		 * The weight, this is represented as strokeWidth.
 		 */
 		self.weight = 1;
+		
+		/**
+		 * The representation attributes, these might be set by the data.
+		 */
 		self.colour = null;
 		self.opacity = null;
 		
@@ -431,14 +423,16 @@ app.graphs = (function() {
 	Edge.prototype.initPaperItems = function() {
 		var self = this;
 		
-		var opacity = (self.weight + 3) / 10;
-		if(opacity > 1) opacity = 1;
+		if(self.opacity == null) {
+			self.opacity = (self.weight + 3) / 10;
+			if(self.opacity > 1) self.opacity = 1;
+		}
 		
 		self.pathItem = new paper.Path({
 			parent: self.graph.edgesLayer,
 			closed: false,
 			strokeWidth: self.weight * 1.75,
-			opacity: opacity
+			opacity: self.opacity
 		});
 		
 		if(self.isDirected) {
@@ -447,7 +441,7 @@ app.graphs = (function() {
 				closed: false,
 				// strokeWidth: 2.5,
 				strokeWidth: self.weight * 1.75,
-				opacity: opacity
+				opacity: self.opacity
 			});
 		}
 	};
@@ -497,10 +491,16 @@ app.graphs = (function() {
 				self.pathItem.segments[1].handleIn.y = tailHandle[1] - self.pathItem.segments[1].point.y;
 			}
 		}
+		if(self.colour) {
+			self.pathItem.strokeColor = self.colour;
+		}
 		
 		/* draw the arrow head */
 		if(self.isDirected) {
 			self._redrawArrow();
+			if(self.colour) {
+				self.arrowItem.strokeColor = self.colour;
+			}
 		}
 	};
 	
@@ -594,6 +594,7 @@ app.graphs = (function() {
 			
 			vector = A.subtract(C).add(B.subtract(A).multiply(A.getDistance(C) / (A.getDistance(C) + B.getDistance(C))));
 			vector.length = 40;
+			// console.log(self.head.name, self.tail.name, node.name, vector);
 			
 			while(true) {
 				self.moveHandle('head', vector);

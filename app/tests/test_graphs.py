@@ -59,16 +59,14 @@ class GraphTestCase(TestCase):
 		self.assertIn('nodes', d)
 		self.assertEqual(len(d['nodes']), 2)
 		
-		self.assertIn('undirected', d)
-		self.assertEqual(len(d['undirected']), 1)
-		self.assertEqual(d['undirected'][0], {
+		self.assertIn('edges', d)
+		self.assertEqual(len(d['edges']), 1)
+		self.assertEqual(d['edges'][0], {
 			'head': 'fin',
 			'tail': 'smn',
+			'is_directed': False,
 			'weight': 3
 		})
-		
-		self.assertIn('directed', d)
-		self.assertEqual(len(d['directed']), 0)
 
 
 

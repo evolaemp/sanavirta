@@ -18,12 +18,11 @@ class FileApiTestCase(TestCase):
 		self.assertEqual(response.status_code, 200)
 		
 		d = read_json(response.content)
-		self.assertEqual(len(d), 4)
+		self.assertEqual(len(d), 3)
 		
 		self.assertEqual(d['name'], 'LanguageGraph')
 		self.assertEqual(len(d['nodes']), 44)
-		self.assertEqual(len(d['undirected']), 87)
-		self.assertEqual(len(d['directed']), 17)
+		self.assertEqual(len(d['edges']), 87 + 17)
 	
 	def test_bad_upload(self):
 		with open('app/fixtures/globes.json', 'r') as f:
@@ -53,12 +52,11 @@ class FileApiTestCase(TestCase):
 		self.assertEqual(response.status_code, 200)
 		
 		d = read_json(response.content)
-		self.assertEqual(len(d), 4)
+		self.assertEqual(len(d), 3)
 		
 		self.assertEqual(d['name'], 'LanguageGraph')
 		self.assertEqual(len(d['nodes']), 44)
-		self.assertEqual(len(d['undirected']), 87)
-		self.assertEqual(len(d['directed']), 17)
+		self.assertEqual(len(d['edges']), 87 + 17)
 
 
 
