@@ -85,10 +85,6 @@ app.maps = (function() {
 		canvas.classList.add('graph');
 		
 		self.graph.initCanvas(canvas);
-		$.get('/api/file/').done(function(data) {
-			self.graph.setData(data);
-			self.graph.beautify();
-		});
 	};
 	
 	/**
@@ -153,7 +149,7 @@ app.maps = (function() {
 		.done(function(data) {
 			app.messages.success('Graph loaded.');
 			self.graph.setData(data);
-			self.graph.beautify();
+			// self.graph.beautify();
 		})
 		.fail(function(xhr) {
 			var error = 'File could not be loaded.';
@@ -161,6 +157,25 @@ app.maps = (function() {
 				error = xhr.responseJSON.error;
 			} catch(e) {};
 			app.messages.error(error);
+		});
+	};
+	
+	/**
+	 * Loads a sample graph and centres it on the screen.
+	 * Used for development and showcasing.
+	 */
+	Map.prototype.loadSampleGraph = function() {
+		var self = this;
+		
+		$.get('/api/file/').done(function(data) {
+			self.graph.setData(data);
+			// self.graph.beautify();
+			
+			self.viewport.deltaX = 975.3125;
+			self.viewport.deltaY = -1100;
+			self.viewport.zoom = 1.953125;
+			
+			self.redraw();
 		});
 	};
 	
@@ -208,13 +223,13 @@ app.maps = (function() {
 		 * The deltas between world and viewport coordinates.
 		 * Thus the negatives: worldP - viewportP = deltaP.
 		 */
-		self.deltaX = 975.3125;
-		self.deltaY = -1100;
+		self.deltaX = 0;
+		self.deltaY = 0;
 		
 		/**
 		 * The zoom coefficient.
 		 */
-		self.zoom = 1.953125;
+		self.zoom = 1;
 		
 		/**
 		 * References to event handlers.

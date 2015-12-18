@@ -98,6 +98,9 @@ var app = (function() {
 			appInstance.settings = new app.maps.MapSettings(appInstance.map);
 			appInstance.settings.initDom($('aside'));
 		}
+		if(location.search.substr(0, 7) == '?sample') {
+			appInstance.map.loadSampleGraph();
+		}
 	});
 	
 	
