@@ -89,9 +89,8 @@ var app = (function() {
 		appInstance.initAjax();
 		
 		if($('main').length > 0) {
-			appInstance.map = new app.maps.Map($('main').get(0));
-			appInstance.map.initGlobe();
-			appInstance.map.initGraph();
+			appInstance.map = new app.maps.Map();
+			appInstance.map.initDom($('main').get(0));
 			appInstance.map.redraw();
 		}
 		if($('aside').length > 0) {

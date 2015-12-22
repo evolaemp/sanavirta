@@ -45,11 +45,6 @@ app.graphs = (function() {
 		self.textLayer = null;
 		
 		/**
-		 * The paper.js tool for attaching event listeners.
-		 */
-		self.tool = null;
-		
-		/**
 		 * The EditOperation instance associated with the graph.
 		 */
 		self.editOperation = new EditOperation(self);
@@ -63,33 +58,30 @@ app.graphs = (function() {
 	
 	/**
 	 * Prepares the canvas the graph is to be drawn on.
+	 * This method assumes that paper.js is already inited.
 	 * 
+	 * @see app.maps.Map.initDom().
 	 * @param The <canvas> element.
 	 */
 	Graph.prototype.initCanvas = function(canvas) {
 		var self = this;
 		self.canvas = canvas;
 		
-		/* init paper.js */
-		paper.setup(self.canvas);
-		paper.settings.handleSize = 10;
-		paper.settings.hitTolerance = 5;
-		
 		/* init layers */
 		self.edgesLayer = new paper.Layer();
 		self.nodesLayer = new paper.Layer();
 		self.textLayer = new paper.Layer();
 		
-		/* init tools and modes */
-		self.tool = new paper.Tool();
-		self.tool.onMouseDown = self._handleMouseDown.bind(self);
-		self.tool.activate();
+		/* init event handlers and modes */
+		var tool = self.map.viewport.getPaperTool();
+		tool.onMouseDown = self._handleMouseDown.bind(self);
 		
 		self.editOperation.initPaperItems();
 	};
 	
 	/**
-	 * Handles mousedown with the graph's paper.js tool.
+	 * Handles mousedown with the viewport's paper.js tool.
+	 * Enables edit mode for the selected edge, if such.
 	 * 
 	 * @param A paper.js ToolEvent instance.
 	 */
@@ -720,7 +712,7 @@ app.graphs = (function() {
 		
 		self.tool.activate();
 		
-		app.messages.info('Edit mode.');
+		app.messages.info('edit mode');
 	};
 	
 	/**
@@ -732,7 +724,7 @@ app.graphs = (function() {
 		self.edge.pathItem.fullySelected = false;
 		self.edge = null;
 		
-		self.graph.tool.activate();
+		self.graph.map.viewport.getPaperTool().activate();
 		
 		app.messages.clear();
 	};

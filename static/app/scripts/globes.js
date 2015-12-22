@@ -57,6 +57,7 @@ app.globes = (function() {
 	/**
 	 * Sets the canvas the globe is to be drawn on.
 	 * 
+	 * @see app.maps.Map.initDom().
 	 * @param The <canvas> element.
 	 */
 	Globe.prototype.initCanvas = function(canvas) {
@@ -112,7 +113,6 @@ app.globes = (function() {
 	Globe.prototype.setData = function(data) {
 		var self = this;
 		self.data = data;
-		self.map.redraw();
 	};
 	
 	/**

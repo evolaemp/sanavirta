@@ -4,6 +4,7 @@
  * @module
  * 
  * @requires jQuery
+ * @requires paper.js
  * @requires app.globes.Globe
  * @requires app.graphs.Graph
  */
@@ -16,94 +17,97 @@ app.maps = (function() {
 	 * Class definition for maps.
 	 * 
 	 * @class
-	 * @param The dom element that will be the map.
 	 */
-	var Map = function(dom) {
+	var Map = function() {
 		var self = this;
 		
 		/**
 		 * The app.globes.Globe instance.
 		 */
-		self.globe = null;
+		self.globe = new app.globes.Globe(self);
 		
 		/**
 		 * The app.graphs.Graph instance.
 		 */
-		self.graph = null;
+		self.graph = new app.graphs.Graph(self);
 		
 		/**
 		 * The parent node of the <canvas> elements.
 		 */
-		self.dom = dom;
+		self.dom = null;
+		
+		/**
+		 * The <canvas> elements and their parent.
+		 */
+		self.globeCanvas = null;
+		self.graphCanvas = null;
 		
 		/**
 		 * The Viewport instance.
 		 */
 		self.viewport = new Viewport(self);
-		self.viewport.attachEvents();
 	};
 	
 	/**
-	 * Inits the map's Globe instance.
+	 * Creates the <canvas> elements, inits paper.js and the viewport instance.
+	 * 
+	 * The globe canvas should be below, i.e. first child, the graph canvas,
+	 * not only because the globe should be below the graph, but aslo because
+	 * the viewport uses paper.js which is inited on the graph canvas.
+	 * 
+	 * @param The dom element that will be the map.
 	 */
-	Map.prototype.initGlobe = function() {
+	Map.prototype.initDom = function(dom) {
 		var self = this;
-		self.globe = new app.globes.Globe(self);
+		self.dom = dom;
 		
-		var canvas = document.createElement('canvas');
+		/* create the globe <canvas> */
+		self.globeCanvas = document.createElement('canvas');
+		self.dom.appendChild(self.globeCanvas);
 		
-		// make sure it is the first child
-		if(self.dom.children.length) {
-			self.dom.insertBefore(canvas, self.dom.firstChild);
-		}
-		else {
-			self.dom.appendChild(canvas);
-		}
+		self.globeCanvas.width = self.dom.offsetWidth;
+		self.globeCanvas.height = self.dom.offsetHeight;
+		self.globeCanvas.classList.add('globe');
 		
-		canvas.width = self.dom.offsetWidth;
-		canvas.height = self.dom.offsetHeight;
-		canvas.classList.add('globe');
+		/* create the graph <canvas> */
+		self.graphCanvas = document.createElement('canvas');
+		self.dom.appendChild(self.graphCanvas);
 		
-		self.globe.initCanvas(canvas);
+		self.graphCanvas.width = self.dom.offsetWidth;
+		self.graphCanvas.height = self.dom.offsetHeight;
+		self.graphCanvas.classList.add('graph');
 		
+		/* init paper.js */
+		paper.setup(self.graphCanvas);
+		paper.settings.handleSize = 10;
+		paper.settings.hitTolerance = 5;
+		
+		/* init the viewport controller */
+		self.viewport.attachEvents();
+		
+		/* init globe and graph instances */
+		self.globe.initCanvas(self.globeCanvas);
 		if(EARTH) {
 			self.globe.setData(EARTH);
 		}
+		
+		self.graph.initCanvas(self.graphCanvas);
 	};
 	
 	/**
-	 * Inits the map's Graph instance.
-	 */
-	Map.prototype.initGraph = function() {
-		var self = this;
-		self.graph = new app.graphs.Graph(self);
-		
-		var canvas = document.createElement('canvas');
-		self.dom.appendChild(canvas);
-		canvas.width = self.dom.offsetWidth;
-		canvas.height = self.dom.offsetHeight;
-		canvas.classList.add('graph');
-		
-		self.graph.initCanvas(canvas);
-	};
-	
-	/**
-	 * Redraws everything on the canvas.
+	 * Redraws everything.
+	 * Only the Viewport instance should call this method.
 	 */
 	Map.prototype.redraw = function() {
 		var self = this;
 		
-		if(self.globe) {
-			self.globe.redraw(
-				self.viewport.deltaX,
-				self.viewport.deltaY,
-				self.viewport.zoom
-			);
-		}
+		self.globe.redraw(
+			self.viewport.deltaX,
+			self.viewport.deltaY,
+			self.viewport.zoom
+		);
 		
-		if(self.graph) {
-			self.graph.redraw();
-		}
+		self.graph.redraw();
 	};
 	
 	/**
@@ -114,14 +118,11 @@ app.maps = (function() {
 	Map.prototype.loadGlobeData = function(globeId) {
 		var self = this;
 		
-		if(!self.globe) {
-			return;
-		}
-		
 		$.get('/api/globe/'+ globeId +'/')
 		.done(function(data) {
 			app.messages.success('Globe loaded.');
 			self.globe.setData(data);
+			self.redraw();  // the globe will not redraw itself
 		})
 		.fail(function() {
 			app.messages.error('Globe not found.');
@@ -232,6 +233,11 @@ app.maps = (function() {
 		self.zoom = 1;
 		
 		/**
+		 * The paper.js tool that the viewport handlers will be attached to.
+		 */
+		self.tool = null;
+		
+		/**
 		 * References to event handlers.
 		 */
 		self.keyDownHandler = null;
@@ -239,12 +245,24 @@ app.maps = (function() {
 	
 	/**
 	 * Attaches the events listeners needed for operating the viewport.
+	 * 
+	 * The key event handler is not attached to the tool so that the user can
+	 * move the curve handles in edit mode to outside the screen if necessary.
 	 */
 	Viewport.prototype.attachEvents = function() {
 		var self = this;
 		
+		self.tool = new paper.Tool();
+		self.tool.minDistance = 10;
+		self.tool.activate();
+		
+		/* moving with the keys */
 		self.keyDownHandler = self._handleKeyDown.bind(self);
 		document.addEventListener('keydown', self.keyDownHandler);
+		
+		/* moving by dragging */
+		self.mouseDragHandler = self._handleMouseDrag.bind(self);
+		self.tool.on('mousedrag', self.mouseDragHandler);
 	};
 	
 	/**
@@ -285,12 +303,44 @@ app.maps = (function() {
 	};
 	
 	/**
+	 * Handles the mousedrag paper js event.
+	 * 
+	 * @param The paper.ToolEvent instance.
+	 */
+	Viewport.prototype._handleMouseDrag = function(e) {
+		var self = this;
+		
+		self.deltaX -= e.point.x - e.lastPoint.x;
+		self.deltaY -= e.point.y - e.lastPoint.y;
+		
+		self.map.redraw();
+	};
+	
+	/**
 	 * Removes the event listeners attached by this Viewport instance.
 	 */
 	Viewport.prototype.detachEvents = function() {
 		var self = this;
 		
 		document.removeEventListener('keydown', self.keyDownHandler);
+		
+		self.tool.off('mousedrag', self.mouseDragHandler);
+	};
+	
+	/**
+	 * Returns reference to self.tool.
+	 * 
+	 * The viewport tool is the default paper.js tool and other classes might
+	 * want to attach their own event handlers or to give back control to the
+	 * viewport tool after temporarily activating another paper.js tool.
+	 * 
+	 * @see app.graphs.Graph.initCanvas().
+	 * @see app.graphs.EditOperation.end().
+	 * 
+	 * @return The paper.js tool instance used for moving the viewport.
+	 */
+	Viewport.prototype.getPaperTool = function() {
+		return this.tool;
 	};
 	
 	
