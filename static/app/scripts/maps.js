@@ -253,7 +253,7 @@ app.maps = (function() {
 		var self = this;
 		
 		self.tool = new paper.Tool();
-		self.tool.minDistance = 10;
+		self.tool.minDistance = 20;
 		self.tool.activate();
 		
 		/* moving with the keys */
@@ -263,6 +263,10 @@ app.maps = (function() {
 		/* moving by dragging */
 		self.mouseDragHandler = self._handleMouseDrag.bind(self);
 		self.tool.on('mousedrag', self.mouseDragHandler);
+		
+		/* zooming with the mouse scroll */
+		self.wheelHandler = self._handleWheel.bind(self);
+		self.map.dom.addEventListener('wheel', self.wheelHandler);
 	};
 	
 	/**
@@ -317,6 +321,27 @@ app.maps = (function() {
 	};
 	
 	/**
+	 * Handles the wheel event.
+	 * 
+	 * @todo Research whether e.deltaMode should be heeded
+	 * (see the source of L.DomEvent.getWheelData()).
+	 * 
+	 * @param The wheel event instance.
+	 */
+	Viewport.prototype._handleWheel = function(e) {
+		var self = this;
+		
+		if(e.deltaY > 0) {
+			self.zoom *= 0.8;
+		}
+		else {
+			self.zoom *= 1.25;
+		}
+		
+		self.map.redraw();
+	};
+	
+	/**
 	 * Removes the event listeners attached by this Viewport instance.
 	 */
 	Viewport.prototype.detachEvents = function() {
@@ -325,6 +350,8 @@ app.maps = (function() {
 		document.removeEventListener('keydown', self.keyDownHandler);
 		
 		self.tool.off('mousedrag', self.mouseDragHandler);
+		
+		self.map.dom.removeEventListener('wheel', self.wheelHandler);
 	};
 	
 	/**
