@@ -505,30 +505,24 @@ app.graphs = (function() {
 	Edge.prototype._redrawArrow = function() {
 		var self = this;
 		
-		self.arrowItem.segments = [
-			[self.tail.x - 27, self.tail.y - 8],
-			[self.tail.x - 15, self.tail.y],
-			[self.tail.x - 27, self.tail.y + 8]
-		];
-		
-		var angle = null;
-		if(self.tailHandleGeo) {
-			var handle = self.pathItem.segments[1].handleIn;
-			angle = Math.atan2(  // handle coords are relative
-				-handle.y,
-				-handle.x
-			);
+		var intersections = self.pathItem.getIntersections(self.tail.circleItem);
+		if(intersections.length != 1) {  // nodes overlap
+			self.arrowItem.visible = false;
+			return;
 		}
-		else {
-			angle = Math.atan2(
-				self.tail.y - self.head.y,
-				self.tail.x - self.head.x
-			);
-		}
-		angle = angle * 180 / Math.PI;
-		// console.log(self.head.name, self.tail.name, angle);
+		var arrowHead = intersections[0].point;
 		
-		self.arrowItem.rotate(angle, [self.tail.x, self.tail.y]);
+		if(self.pathItem.length < 30) {  // nodes are too close
+			self.arrowItem.visible = false;
+			return;
+		}
+		var arrowTail = self.pathItem.getPointAt(self.pathItem.length - 30);
+		
+		var arrowLeft = arrowTail.rotate(-30, arrowHead);
+		var arrowRight = arrowTail.rotate(30, arrowHead);
+		
+		self.arrowItem.segments = [arrowLeft, arrowHead, arrowRight];
+		self.arrowItem.visible = true;
 	};
 	
 	/**
