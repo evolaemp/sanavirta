@@ -25,7 +25,7 @@ class Graph:
 		self.directed = {}
 	
 	
-	def add_node(self, node_name):
+	def add_node(self, node_name, information={}):
 		"""
 		Only adds nodes that are present in the database.
 		"""
@@ -36,7 +36,14 @@ class Graph:
 		except (Language.DoesNotExist, AssertionError):
 			return
 		
-		self.nodes[lang.iso_code] = (lang.latitude, lang.longitude)
+		coords = [lang.latitude, lang.longitude]
+		
+		if 'latitude' in information:
+			coords[0] = information['latitude']
+		if 'longitude' in information:
+			coords[1] = information['longitude']
+		
+		self.nodes[lang.iso_code] = tuple(coords)
 	
 	
 	def add_edge(self, node_one, node_two, is_directed=False, information={}):
@@ -181,8 +188,7 @@ class GraphElement(Element):
 		graph.name = self.name
 		
 		for node in self.nodes:
-			if node.name not in ('node', 'edge'):  # .dot keywords
-				graph.add_node(node.name)
+			node.populate(graph)
 		
 		for subgraph in self.subgraphs:
 			subgraph.populate(graph)
@@ -276,6 +282,23 @@ class NodeStmtElement(Element):
 			self.attr = attr_stmt.attr
 		
 		return string[:match.start()] + string[match.end():]
+	
+	def populate(self, graph):
+		if self.name in ('node', 'edge'):  # .dot keywords
+			return
+		
+		information = {}
+		
+		for item in ('latitude', 'longitude'):
+			try:
+				assert item in self.attr
+				float(self.attr[item])
+			except (AssertionError, ValueError):
+				continue
+			else:
+				information[item] = float(self.attr[item])
+		
+		graph.add_node(self.name, information)
 
 
 
