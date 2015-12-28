@@ -296,10 +296,10 @@ app.maps = (function() {
 			self.zoom = 1;
 		}
 		else if(e.which == 189 || e.which == 109) {  // minus
-			self.zoom *= 0.8;
+			self.zoom *= 9/10;
 		}
 		else if(e.which == 187 || e.which == 107) {  // plus
-			self.zoom *= 1.25;
+			self.zoom *= 10/9;
 		}
 		else return;
 		
@@ -332,10 +332,10 @@ app.maps = (function() {
 		var self = this;
 		
 		if(e.deltaY > 0) {
-			self.zoom *= 0.8;
+			self.zoom *= 9/10;
 		}
 		else {
-			self.zoom *= 1.25;
+			self.zoom *= 10/9;
 		}
 		
 		self.map.redraw();
