@@ -209,12 +209,12 @@ app.graphs = (function() {
 	 * Changes the shape of all nodes of the graph.
 	 * 
 	 * @see app.maps.MapSettings.initDom().
-	 * @param One of ('circle', 'rectangle').
+	 * @param One of ('circle', 'rectangle', 'square').
 	 */
 	Graph.prototype.changeNodeShape = function(shape) {
 		var self = this;
 		
-		if(shape != 'circle' && shape != 'rectangle') {
+		if(shape != 'circle' && shape != 'rectangle' && shape != 'square') {
 			return;
 		}
 		
@@ -351,7 +351,7 @@ app.graphs = (function() {
 	 * Changes the shape of the node.
 	 * 
 	 * @see Graph.changeNodeShape().
-	 * @param One of ('circle', 'rectangle').
+	 * @param One of ('circle', 'rectangle', 'square').
 	 */
 	Node.prototype.changeShape = function(shape) {
 		var self = this;
@@ -367,6 +367,13 @@ app.graphs = (function() {
 			});
 		}
 		else if(shape == 'rectangle') {
+			self.circleItem = new paper.Path.Rectangle({
+				parent: self.graph.nodesLayer,
+				size: new paper.Size(30, 25),
+				opacity: self.opacity
+			});
+		}
+		else if(shape == 'square') {
 			self.circleItem = new paper.Path.Rectangle({
 				parent: self.graph.nodesLayer,
 				size: new paper.Size(30, 30),

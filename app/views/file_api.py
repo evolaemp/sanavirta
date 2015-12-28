@@ -37,7 +37,7 @@ class FileApiView(View):
 		
 		200:
 			name	# pretty file name
-			nodes	# [] of [language, latitude, longitude]
+			nodes	# {} of language: {latitude, longitude, colour, opacity}
 			edges	# [] of {head, tail, is_directed, weight, colour, opacity}
 		
 		400: error
