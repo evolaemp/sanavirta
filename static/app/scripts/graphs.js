@@ -190,6 +190,24 @@ app.graphs = (function() {
 	};
 	
 	/**
+	 * Changes the shape of all nodes of the graph.
+	 * 
+	 * @see app.maps.MapSettings.initDom().
+	 * @param One of ('circle', 'rectangle').
+	 */
+	Graph.prototype.changeNodeShape = function(shape) {
+		var self = this;
+		
+		if(shape != 'circle' && shape != 'rectangle') {
+			return;
+		}
+		
+		for(var i = 0; i < self.nodes.length; i++) {
+			self.nodes[i].changeShape(shape);
+		}
+	};
+	
+	/**
 	 * Removes the currently loaded nodes and edges.
 	 * 
 	 * @see Graph.setData().
@@ -285,7 +303,6 @@ app.graphs = (function() {
 		 */
 		self.circleItem = null;
 		self.textItem = null;
-		self.compoundItem = null;
 	};
 	
 	/**
@@ -305,6 +322,32 @@ app.graphs = (function() {
 			content: self.name,
 			justification: 'center'
 		});
+	};
+	
+	/**
+	 * Changes the shape of the node.
+	 * 
+	 * @see Graph.changeNodeShape().
+	 * @param One of ('circle', 'rectangle').
+	 */
+	Node.prototype.changeShape = function(shape) {
+		var self = this;
+		
+		self.circleItem.remove();
+		self.circleItem = null;
+		
+		if(shape == 'circle') {
+			self.circleItem = new paper.Path.Circle({
+				parent: self.graph.nodesLayer,
+				radius: 15
+			});
+		}
+		else if(shape == 'rectangle') {
+			self.circleItem = new paper.Path.Rectangle({
+				parent: self.graph.nodesLayer,
+				size: new paper.Size(30, 30)
+			});
+		}
 	};
 	
 	/**

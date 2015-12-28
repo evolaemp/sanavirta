@@ -448,6 +448,12 @@ app.maps = (function() {
 			self.map.graph.redraw();
 		});
 		
+		self.dom.find('select#node-shape').change(function(e) {
+			self.map.graph.changeNodeShape($(this).val());
+			self.map.graph.redraw();
+			$(this).blur();
+		});
+		
 		/**
 		 * Exports.
 		 */
