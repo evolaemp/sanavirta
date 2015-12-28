@@ -10,7 +10,9 @@ import re
 
 class Graph:
 	"""
-	The self.nodes dict is of the form node_name: [latitude, longitude].
+	The self.nodes dict is of the form node_name: {}. The latter will contain
+	latitude and longitude, and might also contain colour and/or opacity.
+	
 	The edge dicts are of the form (node, node): {}. The latter might contain
 	the edge's weight, colour, and/or opacity.
 	"""
@@ -36,14 +38,18 @@ class Graph:
 		except (Language.DoesNotExist, AssertionError):
 			return
 		
-		coords = [lang.latitude, lang.longitude]
+		try:
+			for key in information:
+				assert key in ('latitude', 'longitude', 'colour', 'opacity',)
+		except AssertionError:
+			return
 		
-		if 'latitude' in information:
-			coords[0] = information['latitude']
-		if 'longitude' in information:
-			coords[1] = information['longitude']
+		if 'latitude' not in information:
+			information['latitude'] = lang.latitude
+		if 'longitude' not in information:
+			information['longitude'] = lang.longitude
 		
-		self.nodes[lang.iso_code] = tuple(coords)
+		self.nodes[lang.iso_code] = information
 	
 	
 	def add_edge(self, node_one, node_two, is_directed=False, information={}):
@@ -297,6 +303,12 @@ class NodeStmtElement(Element):
 				continue
 			else:
 				information[item] = float(self.attr[item])
+		
+		if 'color' in self.attr:
+			t = AttrStmtElement.parse_colour(self.attr['color'])
+			information['colour'] = t[0]
+			if t[1] is not None:
+				information['opacity'] = t[1]
 		
 		graph.add_node(self.name, information)
 

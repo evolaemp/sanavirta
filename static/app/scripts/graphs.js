@@ -150,8 +150,17 @@ app.graphs = (function() {
 		for(isoCode in data.nodes) {
 			node = new Node(self);
 			node.name = isoCode;
-			node.latitude = data.nodes[isoCode][0];
-			node.longitude = data.nodes[isoCode][1];
+			
+			node.latitude = data.nodes[isoCode].latitude;
+			node.longitude = data.nodes[isoCode].longitude;
+			
+			if('colour' in data.nodes[isoCode]) {
+				node.colour = data.nodes[isoCode].colour;
+			}
+			if('opacity' in data.nodes[isoCode]) {
+				node.opacity = data.nodes[isoCode].opacity;
+			}
+			
 			node.initPaperItems();
 			self.nodes.push(node);
 		}
@@ -162,10 +171,17 @@ app.graphs = (function() {
 				self.getNode(data.edges[i].head),
 				self.getNode(data.edges[i].tail)
 			);
+			
 			edge.isDirected = data.edges[i].is_directed;
 			edge.weight = data.edges[i].weight;
-			if(data.edges[i].colour) edge.colour = data.edges[i].colour;
-			if(data.edges[i].opacity) edge.opacity = data.edges[i].opacity;
+			
+			if('colour' in data.edges[i]) {
+				edge.colour = data.edges[i].colour;
+			}
+			if('opacity' in data.edges[i]) {
+				edge.opacity = data.edges[i].opacity;
+			}
+			
 			edge.initPaperItems();
 			self.edges.push(edge);
 		}
@@ -299,6 +315,12 @@ app.graphs = (function() {
 		self.y = null;
 		
 		/**
+		 * The representation attributes, these might be set by the data.
+		 */
+		self.colour = null;
+		self.opacity = 1;
+		
+		/**
 		 * The paper.js items.
 		 */
 		self.circleItem = null;
@@ -306,21 +328,22 @@ app.graphs = (function() {
 	};
 	
 	/**
-	 * Draws the paper.js items for the first time.
-	 * Node instances should not deal with styling.
+	 * Inits the paper.js items.
 	 */
 	Node.prototype.initPaperItems = function() {
 		var self = this;
 		
 		self.circleItem = new paper.Path.Circle({
 			parent: self.graph.nodesLayer,
-			radius: 15
+			radius: 15,
+			opacity: self.opacity
 		});
 		
 		self.textItem = new paper.PointText({
 			parent: self.graph.textLayer,
 			content: self.name,
-			justification: 'center'
+			justification: 'center',
+			opacity: self.opacity
 		});
 	};
 	
@@ -339,13 +362,15 @@ app.graphs = (function() {
 		if(shape == 'circle') {
 			self.circleItem = new paper.Path.Circle({
 				parent: self.graph.nodesLayer,
-				radius: 15
+				radius: 15,
+				opacity: self.opacity
 			});
 		}
 		else if(shape == 'rectangle') {
 			self.circleItem = new paper.Path.Rectangle({
 				parent: self.graph.nodesLayer,
-				size: new paper.Size(30, 30)
+				size: new paper.Size(30, 30),
+				opacity: self.opacity
 			});
 		}
 	};
@@ -374,6 +399,10 @@ app.graphs = (function() {
 		
 		self.textItem.position = [self.x, self.y];
 		self.circleItem.position = [self.x, self.y];
+		
+		if(self.colour) {
+			self.circleItem.fillColor = self.colour;
+		}
 	};
 	
 	/**
@@ -452,8 +481,7 @@ app.graphs = (function() {
 	};
 	
 	/**
-	 * Draws the paper.js items for the first time.
-	 * Edge instances should not deal with styling, except for strokeWidth.
+	 * Inits the paper.js items.
 	 */
 	Edge.prototype.initPaperItems = function() {
 		var self = this;
