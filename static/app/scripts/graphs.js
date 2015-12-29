@@ -160,6 +160,9 @@ app.graphs = (function() {
 			if('opacity' in data.nodes[isoCode]) {
 				node.opacity = data.nodes[isoCode].opacity;
 			}
+			if('fontcolour' in data.nodes[isoCode]) {
+				node.fontColour = data.nodes[isoCode].fontcolour;
+			}
 			
 			node.initPaperItems();
 			self.nodes.push(node);
@@ -319,6 +322,7 @@ app.graphs = (function() {
 		 */
 		self.colour = null;
 		self.opacity = 1;
+		self.fontColour = null;
 		
 		/**
 		 * The paper.js items.
@@ -409,6 +413,9 @@ app.graphs = (function() {
 		
 		if(self.colour) {
 			self.circleItem.fillColor = self.colour;
+		}
+		if(self.fontColour) {
+			self.textItem.style.fillColor = self.fontColour;
 		}
 	};
 	
