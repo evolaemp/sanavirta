@@ -163,6 +163,9 @@ app.graphs = (function() {
 			if('fontcolour' in data.nodes[isoCode]) {
 				node.fontColour = data.nodes[isoCode].fontcolour;
 			}
+			if('strokecolour' in data.nodes[isoCode]) {
+				node.strokeColour = data.nodes[isoCode].strokecolour;
+			}
 			
 			node.initPaperItems();
 			self.nodes.push(node);
@@ -212,9 +215,11 @@ app.graphs = (function() {
 	 * Changes the shape of all nodes of the graph.
 	 * 
 	 * @see app.maps.MapSettings.initDom().
+	 * 
 	 * @param One of ('circle', 'rectangle', 'square').
+	 * @param Whether to add stroke to the shape.
 	 */
-	Graph.prototype.changeNodeShape = function(shape) {
+	Graph.prototype.changeNodeShape = function(shape, stroke) {
 		var self = this;
 		
 		if(shape != 'circle' && shape != 'rectangle' && shape != 'square') {
@@ -222,7 +227,7 @@ app.graphs = (function() {
 		}
 		
 		for(var i = 0; i < self.nodes.length; i++) {
-			self.nodes[i].changeShape(shape);
+			self.nodes[i].changeShape(shape, stroke);
 		}
 	};
 	
@@ -318,11 +323,12 @@ app.graphs = (function() {
 		self.y = null;
 		
 		/**
-		 * The representation attributes, these might be set by the data.
+		 * Some representation attributes, setting these is optional.
 		 */
 		self.colour = null;
 		self.opacity = 1;
 		self.fontColour = null;
+		self.strokeColour = null;
 		
 		/**
 		 * The paper.js items.
@@ -355,9 +361,11 @@ app.graphs = (function() {
 	 * Changes the shape of the node.
 	 * 
 	 * @see Graph.changeNodeShape().
+	 * 
 	 * @param One of ('circle', 'rectangle', 'square').
+	 * @param Whether to add stroke to the shape.
 	 */
-	Node.prototype.changeShape = function(shape) {
+	Node.prototype.changeShape = function(shape, stroke) {
 		var self = this;
 		
 		self.circleItem.remove();
@@ -383,6 +391,11 @@ app.graphs = (function() {
 				size: new paper.Size(30, 30),
 				opacity: self.opacity
 			});
+		}
+		
+		if(stroke && self.strokeColour) {
+			self.circleItem.strokeColor = self.strokeColour;
+			self.circleItem.strokeWidth = 2.5;
 		}
 	};
 	

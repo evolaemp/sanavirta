@@ -10,9 +10,9 @@ import re
 
 class Graph:
 	"""
-	The self.nodes dict is of the form node_name: {}. The latter will contain
-	latitude and longitude, and might also contain colour, opacity and/or
-	fontcolour.
+	The nodes dict is of the form node_name: {}. The latter will contain
+	latitude and longitude, and might also contain colour, opacity, fontcolour
+	and/or strokecolour.
 	
 	The edge dicts are of the form (node, node): {}. The latter might contain
 	the edge's weight, colour, and/or opacity.
@@ -43,7 +43,8 @@ class Graph:
 			for key in information:
 				assert key in (
 					'latitude', 'longitude',
-					'colour', 'opacity', 'fontcolour',
+					'colour', 'opacity',
+					'fontcolour', 'strokecolour',
 				)
 		except AssertionError:
 			return
@@ -316,6 +317,8 @@ class NodeStmtElement(Element):
 		
 		if 'fontcolor' in self.attr:
 			information['fontcolour'] = self.attr['fontcolor']
+		if 'strokecolor' in self.attr:
+			information['strokecolour'] = self.attr['strokecolor']
 		
 		graph.add_node(self.name, information)
 

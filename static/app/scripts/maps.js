@@ -449,8 +449,15 @@ app.maps = (function() {
 		});
 		
 		self.dom.find('select#node-shape').change(function(e) {
-			self.map.graph.changeNodeShape($(this).val());
+			var value, shape, stroke;
+			
+			value = $(this).val().split('-');
+			shape = value[0];
+			stroke = (value.length == 2) ? true : false;
+			
+			self.map.graph.changeNodeShape(shape, stroke);
 			self.map.graph.redraw();
+			
 			$(this).blur();
 		});
 		
