@@ -39,7 +39,7 @@ delete it from the repo). However, do not forget to generate a fresh
 The last step is to set up and the database:
 
 ```bash
-python manage.py syncdb
+python manage.py migrate
 python manage.py loaddata app/fixtures/globes.json
 ```
 
@@ -95,6 +95,24 @@ python manage.py runserver
 
 Do not forget `python manage.py test` and `python manage.py migrate`, they are
 your friends!
+
+
+## licence
+
+Copyright (C) 2015-2018  sanavirta contributors
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 [dj]: https://www.djangoproject.com
